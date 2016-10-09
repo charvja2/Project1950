@@ -270,6 +270,12 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         return densityData;
     }
 
+    public String log(){
+        return Double.toString(getPosition().getX()) + " " + Double.toString(getPosition().getY()) + " "  + Double.toString(getPosition().getZ()) + "\n" +
+                    Double.toString(getLinearVelocity().getX()) + " " + Double.toString(getLinearVelocity().getY()) + " "  + Double.toString(getLinearVelocity().getZ()) + "\n";
+
+    }
+
     @Override
     public Void loop(Long input) {
         iterationCounter++;

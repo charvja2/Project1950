@@ -80,7 +80,7 @@ public class FlockingAlgorithm implements Loopable<Quadracopter, Vector3>{
         //secondSum.timesScalar(1);
         acceleration.plus(secondSum);
 
-        acceleration.setZ(0.0);
+        //acceleration.setZ(0.0);
         return acceleration;
     }
 }

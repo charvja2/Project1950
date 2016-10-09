@@ -38,7 +38,7 @@ public class Experiment {
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
 
-    public static String EXPERIMENT_CONFIG_FILENAME = "ballShape.txt";
+    public static String EXPERIMENT_CONFIG_FILENAME = "quadricopters2.txt";
 
     private static void loadConfigFile(String filename){
         try {

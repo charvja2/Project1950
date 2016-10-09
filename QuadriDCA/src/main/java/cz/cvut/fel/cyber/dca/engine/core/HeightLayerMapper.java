@@ -22,9 +22,9 @@ public class HeightLayerMapper {
 
         layerMapper.clear();
         members.stream().forEach(member -> {
-            if(member.isBoundary())layerMapper.put(member,  profile.getLayers().get(1));
-                else layerMapper.put(member,  profile.getLayers().get(2));
-
+            RobotGroup.getGroupHeightProfile().getLayers().stream().forEach(layer ->{
+                if(layer.inRange(member.getPosition().getZ()))layerMapper.put(member,layer);
+            });
         });
 
     }

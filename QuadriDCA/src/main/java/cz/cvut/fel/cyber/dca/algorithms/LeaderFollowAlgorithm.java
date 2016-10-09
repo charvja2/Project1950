@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class LeaderFollowAlgorithm implements Loopable<Quadracopter,Vector3>{
 
-    private double param = 1.3;
+    private double param = 1.5;
 
     private Quadracopter current;
     private PriorityQueue<Quadracopter> open;
@@ -146,7 +146,7 @@ public class LeaderFollowAlgorithm implements Loopable<Quadracopter,Vector3>{
         if(input.isLeader())return new Vector3();
         Vector3 leaderForces = getLeaderForces(input);
         leaderForces.timesScalar(param);
-        leaderForces.setZ(0);
+        //leaderForces.setZ(0);
         System.out.println("Leader force of " + input.getId() + " :: " + leaderForces.toString());
         return leaderForces;
     }

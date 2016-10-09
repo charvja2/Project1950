@@ -1,9 +1,6 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
-import cz.cvut.fel.cyber.dca.engine.core.Path;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
-import cz.cvut.fel.cyber.dca.engine.core.RobotGroup;
-import cz.cvut.fel.cyber.dca.engine.core.VrepSession;
+import cz.cvut.fel.cyber.dca.engine.core.*;
 import cz.cvut.fel.cyber.dca.engine.util.StopWatch;
 import javafx.beans.property.SimpleBooleanProperty;
 
@@ -20,13 +17,21 @@ public class ExperimentController implements Runnable{
     private static final Logger LOGGER = Logger.getLogger(ExperimentController.class.getName());
 
     private VrepSession session;
-    private final SimpleBooleanProperty stopExperiment;
+    private static final SimpleBooleanProperty stopExperiment = new SimpleBooleanProperty(false);
     private final StopWatch stopWatch;
 
     public ExperimentController() {
         this.session = new VrepSession();
-        this.stopExperiment = new SimpleBooleanProperty(false);
+        //this.stopExperiment = new SimpleBooleanProperty(false);
         this.stopWatch = new StopWatch();
+    }
+
+    public static SimpleBooleanProperty getStopExperiment() {
+        return stopExperiment;
+    }
+
+    public SimpleBooleanProperty stopExperimentProperty() {
+        return stopExperiment;
     }
 
     @Override
@@ -69,6 +74,8 @@ public class ExperimentController implements Runnable{
 
 
             RobotGroup.downloadMembers(session);
+            BlackBoxDataCollector.logAll();                     // recorder log data
+            BlackBoxDataCollector.writeRecord();
             RobotGroup.loop(startTime);
             RobotGroup.updateProfile();
             RobotGroup.uploadVrepMembers(session);

@@ -1,4 +1,4 @@
-package cz.cvut.fel.cyber.dca.quadrium;
+package cz.cvut.fel.cyber.dca.engine.gui;
 
 
 import javafx.application.Platform;
