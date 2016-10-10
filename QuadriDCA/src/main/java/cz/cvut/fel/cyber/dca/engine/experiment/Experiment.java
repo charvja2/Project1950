@@ -39,6 +39,7 @@ public class Experiment {
 
 
     public static String EXPERIMENT_CONFIG_FILENAME = "quadricopters2.txt";
+    public static boolean FLIGHT_RECORDING = true;
 
     private static void loadConfigFile(String filename){
         try {

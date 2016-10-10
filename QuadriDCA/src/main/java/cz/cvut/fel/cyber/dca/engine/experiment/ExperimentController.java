@@ -74,9 +74,11 @@ public class ExperimentController implements Runnable{
 
 
             RobotGroup.downloadMembers(session);
-            BlackBoxDataCollector.logAll();                     // recorder log data
-            BlackBoxDataCollector.writeRecord();
             RobotGroup.loop(startTime);
+            if(FLIGHT_RECORDING){
+                BlackBoxDataCollector.logAll();                     // recorder log data
+                BlackBoxDataCollector.writeRecord();
+            }
             RobotGroup.updateProfile();
             RobotGroup.uploadVrepMembers(session);
         }

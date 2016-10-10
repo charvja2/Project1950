@@ -225,7 +225,6 @@ public class RobotGroup{
     public static Void loop(Long input) {
         members.stream().forEach(unit -> unit.loop(input));
         members.stream().forEach(unit -> unit.log());
-        boolean[][] graph = getNetConnectionGraph();
 
         return null;
     }
