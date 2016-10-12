@@ -32,11 +32,12 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
 
     private int iterationCounter;
 
+    // leader follow data and received thickness data
     private List<Pair<Quadracopter, LeaderFollowInfo>> leaderInfo;
     private List<Pair<Quadracopter, ThicknessDeterminationData>> receivedStabilityImprovementData;
 
+    // thickness and density data
     private ThicknessDeterminationData thicknessDeterminationData;
-
     private DensityData densityData;
 
     private int lastCheckpoint;
@@ -139,7 +140,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
     }
 
     public Vector3 getRelativeLocalization(Vector3 pos){
-        return Vector3.minus(getPosition(),pos);
+        return Vector3.minus(pos,getPosition());
     }
 
     public Vector3 getRelativeLocalization(Unit neighbor){
@@ -280,15 +281,16 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
     public Void loop(Long input) {
         iterationCounter++;
         System.out.println("LOOP " + iterationCounter +  " :::::::::: UAV ID = " + getId()
-                                                + " ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                                        + " ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
         System.out.println("Measured velocity: " + getLinearVelocity());
         System.out.println("Measured position: " + getPosition());
 
         informNeighbors();
 
-
         System.out.println("Reduced neighborhood  of " + getId() + " ::" + getReducedNeighbors().size());
         getReducedNeighbors().stream().forEach(neighbor -> System.out.println(neighbor.getId()));
+
+        Map<Quadracopter, Vector3> mapper = getNeighborRelLocMapper();
 
         Vector3 velocity = new Vector3();
 
@@ -314,9 +316,9 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         }
 
         if(THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED){
-            Vector3 thicnkessContractionForce = AlgorithmLibrary.getThicknessDeterminationNContractionAlgorithm().loop(this);
+            Vector3 thicknessContractionForce = AlgorithmLibrary.getThicknessDeterminationNContractionAlgorithm().loop(this);
             System.out.println("Thickness data of " + getId() + " :: " + thicknessDeterminationData.toString());
-            System.out.println("Thickness contraction force1 of " + getId() + " :: " + thicnkessContractionForce.toString());
+            System.out.println("Thickness contraction force1 of " + getId() + " :: " + thicknessContractionForce.toString());
         }
 
         Vector3 densityForce = new Vector3();
@@ -325,23 +327,18 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
             System.out.println("Desnity force of " + getId() + " :: " + densityForce.toString());
             System.out.println("Desnity data of " + getId() + " :: " + densityData.toString());
         }
-/*
+
         if(FLOCKING_ALGORITHM_ACTIVATED){
             Vector3 acceleration = AlgorithmLibrary.getFlockingAlgorithm().loop(this);
             System.out.println(getId() + ">> Acceleration >> " + acceleration.toString());
             //if(acceleration.isVectorNull())return null;
             velocity = Vector3.timesScalar(acceleration,(double) (System.currentTimeMillis() - input.longValue()) / 1000 );
 
-            velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
+            //velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
         }
-        */
+
         if(BOID_ALGORITHM_ACTIVATED){
             velocity = AlgorithmLibrary.getBoidAlgorithm().loop(this);
-
-            velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
-        }
-        if(FLOCKING_ALGORITHM_ACTIVATED){
-            velocity = AlgorithmLibrary.getFlockingAlgorithm().loop(this);
 
             velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
         }

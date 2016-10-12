@@ -38,7 +38,9 @@ public class Experiment {
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
 
-    public static String EXPERIMENT_CONFIG_FILENAME = "quadricopters2.txt";
+    public static String EXPERIMENT_CONFIG_FILENAME = "multipleQuadricopters.txt";
+    //public static String EXPERIMENT_CONFIG_FILENAME = "tri.txt";
+
     public static boolean FLIGHT_RECORDING = true;
 
     private static void loadConfigFile(String filename){
@@ -85,6 +87,8 @@ public class Experiment {
                         LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED = Boolean.parseBoolean(value);
                     }else if(key.equals("CHECKPOINT_COUNT")){
                         CHECKPOINT_COUNT = Integer.parseInt(value);
+                    }else{
+                        if(!key.contains("//"))System.out.println("Unknown parameter: " + line);
                     }
 
                 }
@@ -99,7 +103,11 @@ public class Experiment {
     public static void main(String args[]) {
         loadConfigFile("ExperimentConfig/" + EXPERIMENT_CONFIG_FILENAME);
 
-        (new Thread(new ExperimentController())).start();
+        ExperimentController controller = new ExperimentController();
+
+        (new Thread(controller)).start();
     }
+
+
 
 }

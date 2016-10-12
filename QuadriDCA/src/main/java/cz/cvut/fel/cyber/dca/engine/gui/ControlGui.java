@@ -55,7 +55,6 @@ public class ControlGui extends Application {
         });
         stopButton.setOnAction(event -> {
             ServiceLogger.log("Stoping experiment.");
-            ExperimentController.getStopExperiment().set(true);
         });
 
 

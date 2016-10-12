@@ -17,16 +17,16 @@ public class ExperimentController implements Runnable{
     private static final Logger LOGGER = Logger.getLogger(ExperimentController.class.getName());
 
     private VrepSession session;
-    private static final SimpleBooleanProperty stopExperiment = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty stopExperiment;
     private final StopWatch stopWatch;
 
     public ExperimentController() {
         this.session = new VrepSession();
-        //this.stopExperiment = new SimpleBooleanProperty(false);
+        this.stopExperiment = new SimpleBooleanProperty(false);
         this.stopWatch = new StopWatch();
     }
 
-    public static SimpleBooleanProperty getStopExperiment() {
+    public SimpleBooleanProperty getStopExperiment() {
         return stopExperiment;
     }
 

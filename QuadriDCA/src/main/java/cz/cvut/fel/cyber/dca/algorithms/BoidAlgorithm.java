@@ -13,11 +13,11 @@ import static cz.cvut.fel.cyber.dca.engine.util.Vector3.*;
  */
 public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
 
-    private double param = 1;
+    private double param = 0.2;
 
-    private double S = 1;
-    private double K = 0.7;
-    private double M = 0.45;
+    private double S = 0.8;
+    private double K = 1;
+    private double M = 0.7;
 
     private Vector3 separation(Quadracopter unit){
         Vector3 separationForce = new Vector3();
@@ -34,7 +34,7 @@ public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
 
             separationForce.plus(pos);
         });
-
+        separationForce.timesScalar(-1);
         return separationForce;
     }
 
@@ -59,7 +59,7 @@ public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
             pos.timesScalar(unit.getDistance(entry.getKey())/ROBOT_DESIRED_DISTANCE);
             massCentre.plus(pos);
         });
-        massCentre.timesScalar(-1);
+        //massCentre.timesScalar(-1);
         cohesionForce = massCentre;
 
         return cohesionForce;

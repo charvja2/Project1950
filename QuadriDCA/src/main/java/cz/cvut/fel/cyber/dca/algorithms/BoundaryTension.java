@@ -16,7 +16,7 @@ import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
  */
 public class BoundaryTension implements Loopable<Quadracopter, Vector3> {
 
-    private double wParam = -0.4;
+    private double wParam = 0.2;
 
     private Vector3 w(Vector3 boundaryForce){
         boundaryForce.timesScalar(wParam);
@@ -28,7 +28,7 @@ public class BoundaryTension implements Loopable<Quadracopter, Vector3> {
         if(RobotGroup.getMembers().size()<3)return new Vector3();
 
         Set<Quadracopter> boundaryRobots = input.getBoundaryNeighbors();
-        if(boundaryRobots.isEmpty()||boundaryRobots.size()<3)return new Vector3();
+        if(boundaryRobots.isEmpty()||boundaryRobots.size()<2)return new Vector3();
 
         boundaryRobots = boundaryRobots.stream().sorted((a,b) -> {
             if (a.getPosition().distance(input.getPosition()) > b.getPosition().distance(input.getPosition()))return 1;
@@ -52,9 +52,9 @@ public class BoundaryTension implements Loopable<Quadracopter, Vector3> {
 */
 
         //if (!((Quadracopter)firstNeighbor).isLeader())
-            if (firstPos.norm3() < ROBOT_DESIRED_DISTANCE) firstPos.timesScalar(-1);
+            //if (firstPos.norm3() < ROBOT_DESIRED_DISTANCE) firstPos.timesScalar(-1);
         //if (!((Quadracopter)secondNeighbor).isLeader())
-            if (secondPos.norm3() < ROBOT_DESIRED_DISTANCE) secondPos.timesScalar(-1);
+            //if (secondPos.norm3() < ROBOT_DESIRED_DISTANCE) secondPos.timesScalar(-1);
 
 
         firstPos.unitVector();

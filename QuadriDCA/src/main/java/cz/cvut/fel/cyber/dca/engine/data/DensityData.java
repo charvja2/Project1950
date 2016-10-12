@@ -6,12 +6,12 @@ package cz.cvut.fel.cyber.dca.engine.data;
 public class DensityData {
 
     private volatile double originDensity;
-    private volatile double averagedDesnity;
+    private volatile double averagedDensity;
     private volatile double optimalDensity;
 
     public DensityData() {
         optimalDensity = 0;
-        averagedDesnity = 0;
+        averagedDensity = 0;
         originDensity = 0;
     }
 
@@ -19,8 +19,8 @@ public class DensityData {
         this.originDensity = originDensity;
     }
 
-    public void setAveragedDesnity(double averagedDesnity) {
-        this.averagedDesnity = averagedDesnity;
+    public void setAveragedDensity(double averagedDensity) {
+        this.averagedDensity = averagedDensity;
     }
 
     public void setOptimalDensity(double optimalDensity) {
@@ -31,8 +31,8 @@ public class DensityData {
         return originDensity;
     }
 
-    public double getAveragedDesnity() {
-        return averagedDesnity;
+    public double getAveragedDensity() {
+        return averagedDensity;
     }
 
     public double getOptimalDensity() {
@@ -43,7 +43,7 @@ public class DensityData {
     public String toString() {
         return "DensityData{" +
                 "originDensity = " + originDensity +
-                ", averagedDesnity = " + averagedDesnity +
+                ", averagedDensity = " + averagedDensity +
                 ", optimalDensity = " + optimalDensity +
                 '}';
     }
