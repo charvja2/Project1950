@@ -9,6 +9,7 @@ import java.nio.file.Paths;
  */
 public class Experiment {
 
+    public static int DIMENSION = 2;
     public static double ROBOT_COMMUNICATION_RANGE = 3;
     public static double ROBOT_SAFETY_ZONE = 1.0;
     public static double ROBOT_MAX_VELOCITY = 0.5;
@@ -33,12 +34,14 @@ public class Experiment {
     //OTHER ALGORITHMS
     public static boolean LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED = true;
     public static int CHECKPOINT_COUNT = 2;
+    public static boolean HEIGHT_SAFETY_CONTROL_ACTIVATED = true;
+    public static boolean HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED = false;
 
     public static double ROBOT_MIN_SAFETY_HEIGHT = 2.0;
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
 
-    public static String EXPERIMENT_CONFIG_FILENAME = "multipleQuadricopters.txt";
+    public static String EXPERIMENT_CONFIG_FILENAME = "quadricopters.txt";
     //public static String EXPERIMENT_CONFIG_FILENAME = "tri.txt";
 
     public static boolean FLIGHT_RECORDING = true;

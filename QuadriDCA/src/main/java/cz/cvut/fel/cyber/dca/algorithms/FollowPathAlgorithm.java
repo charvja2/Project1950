@@ -1,7 +1,6 @@
 package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.*;
-import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 
 import java.util.ArrayList;
@@ -10,10 +9,10 @@ import java.util.List;
 /**
  * Created by Jan on 13. 12. 2015.
  */
-public class FollowPathAlgorithm implements Loopable<Quadracopter, Vector3> {
+public class FollowPathAlgorithm implements Loopable<Quadrotor, Vector3> {
 
     @Override
-    public Vector3 loop(Quadracopter input) {
+    public Vector3 loop(Quadrotor input) {
         List<DummyCheckpoint> checkpointList = new ArrayList<>();
         List<Path> pathList = RobotGroup.getPathList();
         if (RobotGroup.getPathList().stream().filter(path -> path.getIndex()==input.getId()).findAny().isPresent())

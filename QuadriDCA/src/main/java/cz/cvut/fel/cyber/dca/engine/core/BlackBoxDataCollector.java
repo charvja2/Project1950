@@ -30,17 +30,32 @@ public class BlackBoxDataCollector{
     private static List<String> connectionRecords = new ArrayList<>(RobotGroup.getMembers().size());
 
 
-    public static void logUnit(Quadracopter quadracopter){
+    public static void logUnit(Quadrotor quadracopter){
         positionRecords.add(quadracopter.getId(), quadracopter.log());
         boundaryRecords.add(quadracopter.getId(), quadracopter.isBoundary() ? "1" : "0");
         String conns = "";
+        String reducedConns = "";
         for(int i = 0; i < RobotGroup.getMembers().size(); i++){
             if((RobotGroup.getMembers().get(i).getId()==quadracopter.getId())||(!quadracopter.getNeighbors().contains(RobotGroup.getMembers().get(i)))){
                 conns += "0";
-            }else conns += "1";
-            if(i!=RobotGroup.getMembers().size()-1)conns += " ";
+
+            }else {
+                conns += "1";
+            }
+            if((RobotGroup.getMembers().get(i).getId()==quadracopter.getId())||(!quadracopter.getReducedNeighbors().contains(RobotGroup.getMembers().get(i)))){
+                reducedConns += "0";
+
+            }else {
+                reducedConns += "1";
+            }
+            if(i!=RobotGroup.getMembers().size()-1){
+                conns += " ";
+                reducedConns += " ";
+            }
+
         }
-        connectionRecords.add(quadracopter.getId(), conns);
+
+        connectionRecords.add(quadracopter.getId(), conns + System.lineSeparator() + reducedConns);
     }
 
     public static void logAll(){
@@ -63,6 +78,7 @@ public class BlackBoxDataCollector{
 
     public static void writeRecord(){
         if(iteration == 0){
+
             clearFiles();
 
             try {

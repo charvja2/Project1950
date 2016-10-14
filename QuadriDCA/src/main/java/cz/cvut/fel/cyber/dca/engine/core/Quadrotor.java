@@ -4,7 +4,6 @@ import cz.cvut.fel.cyber.dca.algorithms.AlgorithmLibrary;
 import cz.cvut.fel.cyber.dca.engine.data.DensityData;
 import cz.cvut.fel.cyber.dca.engine.data.LeaderFollowInfo;
 import cz.cvut.fel.cyber.dca.engine.data.ThicknessDeterminationData;
-import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 import javafx.util.Pair;
 
@@ -18,7 +17,7 @@ import static java.lang.Math.max;
 /**
  * Created by Jan on 17. 11. 2015.
  */
-public class Quadracopter extends Unit implements Loopable<Long,Void> {
+public class Quadrotor extends Unit implements Loopable<Long,Void> {
 
     public static int leaderCount;
 
@@ -33,8 +32,8 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
     private int iterationCounter;
 
     // leader follow data and received thickness data
-    private List<Pair<Quadracopter, LeaderFollowInfo>> leaderInfo;
-    private List<Pair<Quadracopter, ThicknessDeterminationData>> receivedStabilityImprovementData;
+    private List<Pair<Quadrotor, LeaderFollowInfo>> leaderInfo;
+    private List<Pair<Quadrotor, ThicknessDeterminationData>> receivedStabilityImprovementData;
 
     // thickness and density data
     private ThicknessDeterminationData thicknessDeterminationData;
@@ -42,7 +41,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
 
     private int lastCheckpoint;
 
-    public Quadracopter(String vrepObjectName, String vrepTargetName, boolean leader) {
+    public Quadrotor(String vrepObjectName, String vrepTargetName, boolean leader) {
         super(vrepObjectName, vrepTargetName);
 
         this.leader = leader;
@@ -64,18 +63,18 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         densityData = new DensityData();
     }
 
-    public Set<Quadracopter> getNeighbors(){
-        Set<Quadracopter> neighbors = RobotGroup.getMembers().stream().filter(
+    public Set<Quadrotor> getNeighbors(){
+        Set<Quadrotor> neighbors = RobotGroup.getMembers().stream().filter(
                 unit -> ROBOT_COMMUNICATION_RANGE > unit.getPosition().distance(getPosition())).collect(Collectors.toSet());
         neighbors = neighbors.stream().filter(unit -> unit.getId() != getId()).collect(Collectors.toSet());
         return neighbors;
     }
 
-    public Set<Quadracopter> getReducedNeighbors(){
+    public Set<Quadrotor> getReducedNeighbors(){
         return getNeighbors().stream().filter(neighbor -> {
             Vector3 position = getRelativeLocalization(neighbor);
             position.timesScalar(0.5);
-            for(Quadracopter neigh2 : getNeighbors()){
+            for(Quadrotor neigh2 : getNeighbors()){
                 if(neigh2.equals(neighbor))continue;
                 Vector3 position2 = getRelativeLocalization(neigh2);
                 if(position.distance(position2)<position.norm3())return false;
@@ -84,7 +83,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         }).collect(Collectors.toSet());
     }
 
-    public Set<Quadracopter> getVisibleNeighbors(){
+    public Set<Quadrotor> getVisibleNeighbors(){
         return getReducedNeighbors();
     }
 
@@ -128,14 +127,14 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         return iterationCounter;
     }
 
-    public Set<Quadracopter> getLeaders(){
-        Set<Quadracopter> leaders = RobotGroup.getMembers().stream().filter(
+    public Set<Quadrotor> getLeaders(){
+        Set<Quadrotor> leaders = RobotGroup.getMembers().stream().filter(
                 unit -> unit.isLeader()).collect(Collectors.toSet());
         return leaders;
     }
 
-    public Set<Quadracopter> getBoundaryNeighbors(){
-        Set<Quadracopter> boundaryNeighbors = getNeighbors().stream().filter(unit -> unit.isBoundary()).collect(Collectors.toSet());
+    public Set<Quadrotor> getBoundaryNeighbors(){
+        Set<Quadrotor> boundaryNeighbors = getNeighbors().stream().filter(unit -> unit.isBoundary()).collect(Collectors.toSet());
         return boundaryNeighbors;
     }
 
@@ -150,8 +149,8 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         else return new Vector3();
     }
 
-    public Map<Quadracopter, Vector3> getNeighborRelLocMapper(){
-        Map<Quadracopter, Vector3> relLocMap = new HashMap<>(0);
+    public Map<Quadrotor, Vector3> getNeighborRelLocMapper(){
+        Map<Quadrotor, Vector3> relLocMap = new HashMap<>(0);
         getNeighbors().stream().forEach(neighbor -> relLocMap.put(neighbor,getRelativeLocalization(neighbor.getPosition())));
         return relLocMap;
     }
@@ -166,7 +165,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         else return null;
     }
 
-    public double getDistance(Quadracopter neighbor){
+    public double getDistance(Quadrotor neighbor){
         return getRelativeLocalization(neighbor).norm3();
     }
 
@@ -178,7 +177,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         return allowedHeightRangeMax;
     }
 
-    public List<Pair<Quadracopter, LeaderFollowInfo>> getLeaderInfo() {
+    public List<Pair<Quadrotor, LeaderFollowInfo>> getLeaderInfo() {
         return leaderInfo;
     }
 
@@ -186,7 +185,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         return thicknessDeterminationData;
     }
 
-    public List<Pair<Quadracopter, ThicknessDeterminationData>> getReceivedStabilityImprovementData() {
+    public List<Pair<Quadrotor, ThicknessDeterminationData>> getReceivedStabilityImprovementData() {
         return receivedStabilityImprovementData;
     }
 
@@ -204,14 +203,14 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
             if (isLost()) leaderInfo.clear();
         }
         if(THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED) {
-            getNeighbors().stream().forEach(neighbor -> neighbor.sendStabilityImprovementData(this, thicknessDeterminationData));
+            getReducedNeighbors().stream().forEach(neighbor -> neighbor.sendStabilityImprovementData(this, thicknessDeterminationData));
             getThicknessDeterminationData().setTimeStamp(getThicknessDeterminationData().getTimeStamp()+1);
         }
     }
 
-    public void sendStabilityImprovementData(Quadracopter source, ThicknessDeterminationData data){
+    public void sendStabilityImprovementData(Quadrotor source, ThicknessDeterminationData data){
         if(receivedStabilityImprovementData.stream().filter(stData -> stData.getKey().equals(source)).findAny().isPresent()){
-          Pair<Quadracopter,ThicknessDeterminationData> temporaryData =  receivedStabilityImprovementData.stream()
+          Pair<Quadrotor,ThicknessDeterminationData> temporaryData =  receivedStabilityImprovementData.stream()
                                                         .filter(stData -> stData.getKey().equals(source)).findAny().get();
             if(temporaryData.getValue().getTimeStamp()<=data.getTimeStamp()){
                 receivedStabilityImprovementData.remove(temporaryData);
@@ -220,7 +219,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         }else receivedStabilityImprovementData.add(new Pair<>(source,data));
     }
 
-    public void sendLeaderFollowInfo(Quadracopter source, LeaderFollowInfo info){
+    public void sendLeaderFollowInfo(Quadrotor source, LeaderFollowInfo info){
         if(leader)return;
         if(!getNeighbors().contains(source))return;
         if((info.getSourceId()==Integer.MAX_VALUE)||(info.getHopCount()==Integer.MAX_VALUE))return;
@@ -249,7 +248,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         }
     }
 
-    private LeaderFollowInfo mergeLeaderFollowInfo(Quadracopter source, LeaderFollowInfo info){
+    private LeaderFollowInfo mergeLeaderFollowInfo(Quadrotor source, LeaderFollowInfo info){
 
 
         if (source.isLeader() && (source.getId() == info.getSourceId())){
@@ -287,10 +286,8 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
 
         informNeighbors();
 
-        System.out.println("Reduced neighborhood  of " + getId() + " ::" + getReducedNeighbors().size());
-        getReducedNeighbors().stream().forEach(neighbor -> System.out.println(neighbor.getId()));
-
-        Map<Quadracopter, Vector3> mapper = getNeighborRelLocMapper();
+        /*System.out.println("Reduced neighborhood  of " + getId() + " ::" + getReducedNeighbors().size());
+        getReducedNeighbors().stream().forEach(neighbor -> System.out.println(neighbor.getId()));*/
 
         Vector3 velocity = new Vector3();
 
@@ -315,8 +312,9 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
             if(leader&&!LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED)return null;
         }
 
+        Vector3 thicknessContractionForce = new Vector3();
         if(THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED){
-            Vector3 thicknessContractionForce = AlgorithmLibrary.getThicknessDeterminationNContractionAlgorithm().loop(this);
+            thicknessContractionForce = AlgorithmLibrary.getThicknessDeterminationNContractionAlgorithm().loop(this);
             System.out.println("Thickness data of " + getId() + " :: " + thicknessDeterminationData.toString());
             System.out.println("Thickness contraction force1 of " + getId() + " :: " + thicknessContractionForce.toString());
         }
@@ -331,15 +329,11 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
         if(FLOCKING_ALGORITHM_ACTIVATED){
             Vector3 acceleration = AlgorithmLibrary.getFlockingAlgorithm().loop(this);
             System.out.println(getId() + ">> Acceleration >> " + acceleration.toString());
-            //if(acceleration.isVectorNull())return null;
             velocity = Vector3.timesScalar(acceleration,(double) (System.currentTimeMillis() - input.longValue()) / 1000 );
-
-            //velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
         }
 
         if(BOID_ALGORITHM_ACTIVATED){
             velocity = AlgorithmLibrary.getBoidAlgorithm().loop(this);
-
             velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
         }
 
@@ -364,10 +358,10 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
 
 
         for(Pair lfa : leaderInfo){
-            System.out.println("LFInfo source: " + ((Quadracopter)lfa.getKey()).getId());
+            System.out.println("LFInfo source: " + ((Quadrotor)lfa.getKey()).getId());
             System.out.println("LFInfo:  " + ((LeaderFollowInfo)lfa.getValue()).toString());
         }
-/*
+
         if(HEIGHT_SAFETY_CONTROL_ACTIVATED){
             velocity = AlgorithmLibrary.getSimpleHeightSafetyControlAlgorithm().loop(new Pair<>(this,velocity));
         }
@@ -375,7 +369,7 @@ public class Quadracopter extends Unit implements Loopable<Long,Void> {
             Vector3 heightForce = AlgorithmLibrary.getHeightLayerControlAlgorithm().loop(this);
             velocity.plus(Vector3.timesScalar(heightForce,(double) (System.currentTimeMillis() - input.longValue()) / 1000));
         }
-*/
+
         if(velocity.norm3()>ROBOT_MAX_VELOCITY)velocity.timesScalar(ROBOT_MAX_VELOCITY/velocity.norm3());
 
         System.out.println(getId() + ">> Velocity >> " + velocity.toString());

@@ -1,7 +1,7 @@
 package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Loopable;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
+import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.core.Unit;
 import cz.cvut.fel.cyber.dca.engine.data.ThicknessDeterminationData;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
@@ -10,24 +10,26 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.DIMENSION;
+
 /**
  * Created by Jan on 28. 10. 2015.
  */
-public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Quadracopter,Vector3> {
+public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Quadrotor,Vector3> {
 
     private int lambda = 2;
     private double param = 0.2;
 
-    private void handleBoundaryHopDistance(Quadracopter input){
+    private void handleBoundaryHopDistance(Quadrotor input){
         if(input.isBoundary())input.getThicknessDeterminationData().setB(0);
         else if(input.getReceivedStabilityImprovementData().stream().mapToInt(pair -> pair.getValue().getB()).min().isPresent()){
             int min = input.getReceivedStabilityImprovementData().stream().mapToInt(pair -> pair.getValue().getB()).min().getAsInt();
-            Pair<Quadracopter,ThicknessDeterminationData> pairMinB = input.getReceivedStabilityImprovementData().stream().filter(pair -> pair.getValue().getB()==min).findAny().get();
+            Pair<Quadrotor,ThicknessDeterminationData> pairMinB = input.getReceivedStabilityImprovementData().stream().filter(pair -> pair.getValue().getB()==min).findAny().get();
             input.getThicknessDeterminationData().setB(pairMinB.getValue().getB() + 1);
         }
     }
 
-    private void handleThickness(Quadracopter input){
+    private void handleThickness(Quadrotor input){
         int max = 0;
 
         if (input.getReducedNeighbors().stream().filter(neighbor -> neighbor.getThicknessDeterminationData().getT() + lambda > neighbor.getThicknessDeterminationData().getH())
@@ -40,7 +42,7 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
         input.getThicknessDeterminationData().setT(max);
     }
 
-    private void handleCircleHopDistance(Quadracopter input){
+    private void handleCircleHopDistance(Quadrotor input){
         if(input.getThicknessDeterminationData().getB()==input.getThicknessDeterminationData().getT())
             input.getThicknessDeterminationData().setH(0);
         else{
@@ -51,7 +53,7 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
         }
     }
 
-    private Vector3 computeThicknessContractionForce(Quadracopter unit){
+    private Vector3 computeThicknessContractionForce(Quadrotor unit){
         Vector3 thicknessForce = new Vector3();
         int thickness = unit.getThicknessDeterminationData().getT();
         int centerHopDistance = unit.getThicknessDeterminationData().getH();
@@ -59,7 +61,7 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
         if(unit.isBoundary()){
             if(unit.getVisibleNeighbors().stream().filter(neighbor-> neighbor.isBoundary()).collect(Collectors.toList()).size() >= 2 ){
 
-                Set<Quadracopter> boundaryRobots = unit.getBoundaryNeighbors();
+                Set<Quadrotor> boundaryRobots = unit.getBoundaryNeighbors();
                 if(boundaryRobots.isEmpty()||boundaryRobots.size()<3)return new Vector3();
 
                 boundaryRobots = boundaryRobots.stream().sorted((a,b) -> {
@@ -82,7 +84,7 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
         }else{
             if(unit.getVisibleNeighbors().size() >= 2 ){
 
-                Set<Quadracopter> visibleNeighbors = unit.getVisibleNeighbors();
+                Set<Quadrotor> visibleNeighbors = unit.getVisibleNeighbors();
                 if(visibleNeighbors.isEmpty()||visibleNeighbors.size()<3)return new Vector3();
 
                 visibleNeighbors = visibleNeighbors.stream().sorted((a,b) -> {
@@ -110,7 +112,7 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
     }
 
     @Override
-    public Vector3 loop(Quadracopter input) {
+    public Vector3 loop(Quadrotor input) {
         handleBoundaryHopDistance(input);
         handleThickness(input);
         handleCircleHopDistance(input);
@@ -123,6 +125,8 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
 
         Vector3 force = computeThicknessContractionForce(input);
         force.timesScalar(param);
+        if(DIMENSION == 2)force.setZ(0);
+
         return force;
     }
 }

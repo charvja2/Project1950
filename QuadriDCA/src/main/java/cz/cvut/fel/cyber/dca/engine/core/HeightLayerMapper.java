@@ -3,21 +3,19 @@ package cz.cvut.fel.cyber.dca.engine.core;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * Created by Jan on 16. 1. 2016.
  */
 public class HeightLayerMapper {
 
-    private Map<Quadracopter, HeightLayer> layerMapper;
+    private Map<Quadrotor, HeightLayer> layerMapper;
 
     public HeightLayerMapper() {
         this.layerMapper = new HashMap<>();
     }
 
-    public void update(List<Quadracopter> members, HeightProfile profile){
+    public void update(List<Quadrotor> members, HeightProfile profile){
         if(profile.getLayers().isEmpty())return;
 
         layerMapper.clear();
@@ -29,7 +27,7 @@ public class HeightLayerMapper {
 
     }
 
-    public Map<Quadracopter, HeightLayer> getLayerMapper() {
+    public Map<Quadrotor, HeightLayer> getLayerMapper() {
         return layerMapper;
     }
 }

@@ -51,7 +51,7 @@ public class ExperimentController implements Runnable{
         RobotGroup.launchDownloadBuffer(session);
 
         if(LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED){
-            for(Quadracopter leader :  RobotGroup.getLeaders()){
+            for(Quadrotor leader :  RobotGroup.getLeaders()){
                 Path path = new Path(leader.getId(),CHECKPOINT_COUNT);
                 path.initVrep(session);
                 RobotGroup.getPathList().add(path);

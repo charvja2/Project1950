@@ -1,7 +1,7 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
 import coppelia.IntW;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
+import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.core.Unit;
 import cz.cvut.fel.cyber.dca.engine.core.VrepSession;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -37,7 +37,7 @@ public class RelocTestController  implements Runnable{
             return;
         }
 
-        Unit quadricopter = new Quadracopter("Quadracopter","Quadricopter_target",true);
+        Unit quadricopter = new Quadrotor("Quadracopter","Quadricopter_target",true);
 
         IntW objectHandle = new IntW(0);
         IntW targetHandle = new IntW(0);

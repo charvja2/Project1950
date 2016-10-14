@@ -1,8 +1,7 @@
 package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Loopable;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
-import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
+import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
@@ -11,7 +10,7 @@ import static cz.cvut.fel.cyber.dca.engine.util.Vector3.*;
 /**
  * Created by Jan on 1. 11. 2015.
  */
-public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
+public class BoidAlgorithm implements Loopable<Quadrotor, Vector3> {
 
     private double param = 0.2;
 
@@ -19,7 +18,7 @@ public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
     private double K = 1;
     private double M = 0.7;
 
-    private Vector3 separation(Quadracopter unit){
+    private Vector3 separation(Quadrotor unit){
         Vector3 separationForce = new Vector3();
         //unit.getNeighborRelLocMapper().values().forEach(separationForce::plus);
 
@@ -38,7 +37,7 @@ public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
         return separationForce;
     }
 
-    private Vector3 cohesion(Quadracopter unit){
+    private Vector3 cohesion(Quadrotor unit){
         Vector3 cohesionForce = new Vector3();
         Vector3 massCentre = new Vector3();
 
@@ -65,7 +64,7 @@ public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
         return cohesionForce;
     }
 
-    private Vector3 alignment(Quadracopter unit){
+    private Vector3 alignment(Quadrotor unit){
         Vector3 steeringForce = new Vector3();
         Vector3 mass = new Vector3();
 
@@ -77,7 +76,7 @@ public class BoidAlgorithm implements Loopable<Quadracopter, Vector3> {
     }
 
     @Override
-    public Vector3 loop(Quadracopter input) {
+    public Vector3 loop(Quadrotor input) {
         Vector3 separationForce = separation(input);
         Vector3 cohesionForce = cohesion(input);
         Vector3 matching = alignment(input);

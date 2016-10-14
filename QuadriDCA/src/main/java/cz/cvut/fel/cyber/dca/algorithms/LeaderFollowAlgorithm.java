@@ -1,7 +1,7 @@
 package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Loopable;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
+import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.data.LeaderFollowInfo;
 import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
@@ -12,13 +12,13 @@ import java.util.*;
 /**
  * Created by Jan on 28. 10. 2015.
  */
-public class LeaderFollowAlgorithm implements Loopable<Quadracopter,Vector3>{
+public class LeaderFollowAlgorithm implements Loopable<Quadrotor,Vector3>{
 
     private double param = -1.3;
 
-    private Vector3 getLeaderForces(Quadracopter unit){
-        Set<Quadracopter> leaders = unit.getLeaders();
-        List<Pair<Quadracopter, LeaderFollowInfo>> leaderInfoList = unit.getLeaderInfo();
+    private Vector3 getLeaderForces(Quadrotor unit){
+        Set<Quadrotor> leaders = unit.getLeaders();
+        List<Pair<Quadrotor, LeaderFollowInfo>> leaderInfoList = unit.getLeaderInfo();
 
         int leadersWithoutInfo = leaders.size() - leaderInfoList.size();
 
@@ -37,7 +37,7 @@ public class LeaderFollowAlgorithm implements Loopable<Quadracopter,Vector3>{
         if(sum == 0) return leaderForce;
 
         for(Pair leader : leaderInfoList) {
-            Quadracopter source = ((Quadracopter) leader.getKey());
+            Quadrotor source = ((Quadrotor) leader.getKey());
             LeaderFollowInfo info = (LeaderFollowInfo) leader.getValue();
 
             double velocity = ((LeaderFollowInfo)leader.getValue()).getLeaderVelocity().norm3();
@@ -57,7 +57,7 @@ public class LeaderFollowAlgorithm implements Loopable<Quadracopter,Vector3>{
     }
 
     @Override
-    public Vector3 loop(Quadracopter input) {
+    public Vector3 loop(Quadrotor input) {
         if(input.isLeader())return new Vector3();
         Vector3 leaderForces = getLeaderForces(input);
         leaderForces.timesScalar(param);

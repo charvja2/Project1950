@@ -1,22 +1,24 @@
 package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Loopable;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
+import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.core.RobotGroup;
 import cz.cvut.fel.cyber.dca.engine.core.Unit;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
+import javafx.util.Pair;
 
-import java.util.Set;
+import java.lang.reflect.Parameter;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
+import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.DIMENSION;
 
 /**
  * Created by Jan on 22. 11. 2015.
  */
-public class BoundaryTension implements Loopable<Quadracopter, Vector3> {
+public class BoundaryTension implements Loopable<Quadrotor, Vector3> {
 
-    private double wParam = 0.2;
+    private double wParam = 0.4;
 
     private Vector3 w(Vector3 boundaryForce){
         boundaryForce.timesScalar(wParam);
@@ -24,45 +26,29 @@ public class BoundaryTension implements Loopable<Quadracopter, Vector3> {
     }
 
     @Override
-    public Vector3 loop(Quadracopter input) {
+    public Vector3 loop(Quadrotor input) {
         if(RobotGroup.getMembers().size()<3)return new Vector3();
 
-        Set<Quadracopter> boundaryRobots = input.getBoundaryNeighbors();
-        if(boundaryRobots.isEmpty()||boundaryRobots.size()<2)return new Vector3();
+        Map<Pair<Quadrotor,Quadrotor>, Double> emptySectors = BoundaryCommon.findEmptySectors(input);
 
-        boundaryRobots = boundaryRobots.stream().sorted((a,b) -> {
-            if (a.getPosition().distance(input.getPosition()) > b.getPosition().distance(input.getPosition()))return 1;
-            else return -1;
-        }).collect(Collectors.toSet());
+        if(emptySectors.isEmpty())return new Vector3();
 
-        Unit firstNeighbor = (Unit)boundaryRobots.toArray()[0];
-        Unit secondNeighbor = (Unit)boundaryRobots.toArray()[1];
+
+        Pair<Quadrotor,Quadrotor> neighbors = emptySectors.entrySet().stream()
+                                                .max((a, b) -> (a.getValue()>b.getValue()) ? 1 : -1).get().getKey();
+
+
+        Quadrotor firstNeighbor = neighbors.getKey();
+        Quadrotor secondNeighbor = neighbors.getValue();
 
         Vector3 firstPos = input.getRelativeLocalization(firstNeighbor);
         Vector3 secondPos = input.getRelativeLocalization(secondNeighbor);
-
-
-        //if((firstPos.norm3()< ROBOT_DESIRED_DISTANCE)&&(secondPos.norm3()< ROBOT_DESIRED_DISTANCE))
-        //    return new Vector3();
-        /*
-        if ((!((Quadracopter)firstNeighbor).isLeader())&&(!((Quadracopter)secondNeighbor).isLeader())) {
-            if (firstPos.norm3() < ROBOT_DESIRED_DISTANCE) firstPos.timesScalar(-1);
-            if (secondPos.norm3() < ROBOT_DESIRED_DISTANCE) secondPos.timesScalar(-1);
-        }
-*/
-
-        //if (!((Quadracopter)firstNeighbor).isLeader())
-            //if (firstPos.norm3() < ROBOT_DESIRED_DISTANCE) firstPos.timesScalar(-1);
-        //if (!((Quadracopter)secondNeighbor).isLeader())
-            //if (secondPos.norm3() < ROBOT_DESIRED_DISTANCE) secondPos.timesScalar(-1);
-
 
         firstPos.unitVector();
         secondPos.unitVector();
 
         Vector3 boundaryForce =  w(Vector3.plus(firstPos,secondPos));
-
-        //boundaryForce.setZ(0);
+        if(DIMENSION == 2)boundaryForce.setZ(0);
 
         return boundaryForce;
     }

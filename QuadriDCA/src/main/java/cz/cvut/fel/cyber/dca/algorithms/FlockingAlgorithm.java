@@ -1,7 +1,7 @@
 package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Loopable;
-import cz.cvut.fel.cyber.dca.engine.core.Quadracopter;
+import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 import cz.cvut.fel.cyber.dca.engine.core.Unit;
 
@@ -12,7 +12,7 @@ import static java.lang.Math.*;
 /**
  * Created by Jan on 25. 10. 2015.
  */
-public class FlockingAlgorithm implements Loopable<Quadracopter, Vector3>{
+public class FlockingAlgorithm implements Loopable<Quadrotor, Vector3>{
 
     private final double epsilon = 4;
     private final double a = 1;
@@ -53,7 +53,7 @@ public class FlockingAlgorithm implements Loopable<Quadracopter, Vector3>{
     }
 
     @Override
-    public Vector3 loop(Quadracopter unit) {
+    public Vector3 loop(Quadrotor unit) {
         if(unit==null)throw new NullPointerException();
         if(unit.getNeighbors().isEmpty())return new Vector3();
 
@@ -83,7 +83,7 @@ public class FlockingAlgorithm implements Loopable<Quadracopter, Vector3>{
 
         acceleration.timesScalar(param);
 
-        //acceleration.setZ(0.0);
+        if(DIMENSION == 2)acceleration.setZ(0.0);
         return acceleration;
     }
 }

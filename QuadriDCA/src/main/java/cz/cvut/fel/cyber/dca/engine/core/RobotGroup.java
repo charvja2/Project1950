@@ -26,7 +26,7 @@ public class RobotGroup{
 
     private static final Logger LOGGER = Logger.getLogger(RobotGroup.class.getName());
 
-    private static List<Quadracopter> members = new ArrayList<>();
+    private static List<Quadrotor> members = new ArrayList<>();
 
     private static List<Path> pathList = new ArrayList<>();
 
@@ -55,21 +55,21 @@ public class RobotGroup{
         return pathList;
     }
 
-    public static List<Quadracopter> getMembers() {
+    public static List<Quadrotor> getMembers() {
         return members;
     }
 
-    public static List<Quadracopter> getLeaders(){
+    public static List<Quadrotor> getLeaders(){
         return members.stream().filter(member -> member.isLeader()).collect(Collectors.toList());
     }
 
     public static void initMembers(){
         members = new ArrayList<>();
-        if(LEADER_COUNT!=0) members.add(new Quadracopter("Quadricopter", "Quadricopter_target", true));
-        else members.add(new Quadracopter("Quadricopter", "Quadricopter_target", false));
+        if(LEADER_COUNT!=0) members.add(new Quadrotor("Quadricopter", "Quadricopter_target", true));
+        else members.add(new Quadrotor("Quadricopter", "Quadricopter_target", false));
         for(int i = 0; i < ROBOT_COUNT-1 ;i++){
-            if (LEADER_COUNT-1 > i)members.add(new Quadracopter("Quadricopter#" + Integer.toString(i), "Quadricopter_target#" + Integer.toString(i), true));
-            else members.add(new Quadracopter("Quadricopter#" + Integer.toString(i), "Quadricopter_target#" + Integer.toString(i), false));
+            if (LEADER_COUNT-1 > i)members.add(new Quadrotor("Quadricopter#" + Integer.toString(i), "Quadricopter_target#" + Integer.toString(i), true));
+            else members.add(new Quadrotor("Quadricopter#" + Integer.toString(i), "Quadricopter_target#" + Integer.toString(i), false));
         }
         initHeightProfile();
     }
