@@ -9,12 +9,14 @@ import javafx.util.Pair;
 
 import java.util.*;
 
+import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
+
 /**
  * Created by Jan on 28. 10. 2015.
  */
 public class LeaderFollowAlgorithm implements Loopable<Quadrotor,Vector3>{
 
-    private double param = -1.3;
+    private double param = -1.6;
 
     private Vector3 getLeaderForces(Quadrotor unit){
         Set<Quadrotor> leaders = unit.getLeaders();
@@ -44,8 +46,8 @@ public class LeaderFollowAlgorithm implements Loopable<Quadrotor,Vector3>{
             Vector3 cl = ((LeaderFollowInfo)leader.getValue()).getLeaderDirection();
 
             if((info.getHopCount() == 1) && (source.getId() == info.getSourceId())
-                    && (unit.getDistance(source)>(Experiment.ROBOT_DESIRED_DISTANCE-(Experiment.ROBOT_DESIRED_DISTANCE/3))))
-                velocity *= 2.5*unit.getDistance(source)/Experiment.ROBOT_DESIRED_DISTANCE ;
+                    && (unit.getDistance(source)>(ROBOT_DESIRED_DISTANCE-(ROBOT_DESIRED_DISTANCE/3))))
+                velocity *= 2.5*unit.getDistance(source)/ ROBOT_DESIRED_DISTANCE ;
 
             cl.timesScalar(velocity);
             cl.timesScalar((((double)1)/((LeaderFollowInfo)leader.getValue()).getHopCount())/sum);
@@ -61,7 +63,7 @@ public class LeaderFollowAlgorithm implements Loopable<Quadrotor,Vector3>{
         if(input.isLeader())return new Vector3();
         Vector3 leaderForces = getLeaderForces(input);
         leaderForces.timesScalar(param);
-        //leaderForces.setZ(0);
+        if(DIMENSION == 2)leaderForces.setZ(0);
         System.out.println("Leader force of " + input.getId() + " :: " + leaderForces.toString());
         return leaderForces;
     }

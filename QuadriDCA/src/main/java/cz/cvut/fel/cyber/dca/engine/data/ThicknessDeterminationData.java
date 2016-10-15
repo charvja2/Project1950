@@ -14,7 +14,7 @@ public class ThicknessDeterminationData {
     public ThicknessDeterminationData(int timeStamp, int sourceId) {
         this.timeStamp = timeStamp;
         this.sourceId = sourceId;
-        this.b = Integer.MAX_VALUE;
+        this.b = 0;
         this.t = 0;
         this.h = 0;
     }

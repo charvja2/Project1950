@@ -20,11 +20,10 @@ public class HeightLayerMapper {
 
         layerMapper.clear();
         members.stream().forEach(member -> {
-            RobotGroup.getGroupHeightProfile().getLayers().stream().forEach(layer ->{
+            member.getHeightProfile().getLayers().stream().forEach(layer ->{
                 if(layer.inRange(member.getPosition().getZ()))layerMapper.put(member,layer);
             });
         });
-
     }
 
     public Map<Quadrotor, HeightLayer> getLayerMapper() {

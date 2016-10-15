@@ -7,6 +7,7 @@ import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 import javafx.util.Pair;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
 
@@ -26,8 +27,11 @@ public class DensityAlgorithm implements Loopable<Quadrotor, Vector3> {
             if(DIMENSION == 2){
                 Map<Pair<Quadrotor,Quadrotor>,Double> emptySectors = BoundaryCommon.findEmptySectors(unit);
 
-                Double angle = emptySectors.entrySet().stream()
-                        .max((a, b) -> (a.getValue()>b.getValue()) ? 1 : -1).get().getValue();
+                Optional<Map.Entry<Pair<Quadrotor,Quadrotor>,Double>> optSector = emptySectors.entrySet().stream()
+                        .max((a, b) -> (a.getValue()>b.getValue()) ? 1 : -1);
+
+                Double angle = 0d;
+                if (optSector.isPresent()) angle = optSector.get().getValue();
 
                 double invisibleArea = MathUtils.circularSectorSurface(ROBOT_COMMUNICATION_RANGE, angle);
                 return MathUtils.ringSurface(ROBOT_COMMUNICATION_RANGE) - invisibleArea;

@@ -40,21 +40,21 @@ public class ExperimentController implements Runnable{
         stopWatch.start();
         if(session.connect()){
             LOGGER.log(Level.INFO,"Connected to V-Rep");
-            session.getVrep().simxAddStatusbarMessage(session.getClientId(),"Connected from Java client!",session.getVrep().simx_opmode_oneshot);
+            session.getVrep().simxAddStatusbarMessage(session.getClientId(),"Connected from Java client!", session.getVrep().simx_opmode_oneshot);
         }else{
             LOGGER.log(Level.INFO,"Connection to V-Rep failed!");
             return;
         }
 
-        RobotGroup.initMembers();
-        RobotGroup.initVrepMembers(session);
-        RobotGroup.launchDownloadBuffer(session);
+        Swarm.initMembers();
+        Swarm.initVrepMembers(session);
+        Swarm.launchDownloadBuffer(session);
 
         if(LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED){
-            for(Quadrotor leader :  RobotGroup.getLeaders()){
+            for(Quadrotor leader :  Swarm.getLeaders()){
                 Path path = new Path(leader.getId(),CHECKPOINT_COUNT);
                 path.initVrep(session);
-                RobotGroup.getPathList().add(path);
+                Swarm.getPathList().add(path);
             }
         }
 
@@ -73,14 +73,13 @@ public class ExperimentController implements Runnable{
             System.out.println("Simulation running time: " + stopWatch.getTimeAsText());
 
 
-            RobotGroup.downloadMembers(session);
-            RobotGroup.loop(startTime);
+            Swarm.downloadMembers(session);
+            Swarm.loop(startTime);
             if(FLIGHT_RECORDING){
                 BlackBoxDataCollector.logAll();                     // recorder log data
                 BlackBoxDataCollector.writeRecord();
             }
-            RobotGroup.updateProfile();
-            RobotGroup.uploadVrepMembers(session);
+            Swarm.uploadVrepMembers(session);
         }
 
         session.getVrep()

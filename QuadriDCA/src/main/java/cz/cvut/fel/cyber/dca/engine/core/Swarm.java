@@ -8,6 +8,7 @@ package cz.cvut.fel.cyber.dca.engine.core;
 import coppelia.FloatWA;
 import coppelia.IntW;
 import coppelia.remoteApi;
+import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 
 import java.util.ArrayList;
@@ -22,34 +23,13 @@ import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
  *
  * @author Jan
  */
-public class RobotGroup{
+public class Swarm {
 
-    private static final Logger LOGGER = Logger.getLogger(RobotGroup.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Swarm.class.getName());
 
     private static List<Quadrotor> members = new ArrayList<>();
 
     private static List<Path> pathList = new ArrayList<>();
-
-    public static HeightLayerMapper getLayerMapper() {
-        return layerMapper;
-    }
-
-    private static HeightLayerMapper layerMapper = new HeightLayerMapper();
-
-    private static HeightProfile heightProfile = new HeightProfile();
-
-    private static void initHeightProfile(){
-        heightProfile.getLayers().add(new HeightLayer(0,1)); //landing layer
-        heightProfile.getLayers().add(new HeightLayer(1,3));
-        heightProfile.getLayers().add(new HeightLayer(4,6));
-        heightProfile.getLayers().add(new HeightLayer(6,8));
-
-        layerMapper.update(members,heightProfile);
-    }
-
-    public static void updateProfile(){
-        layerMapper.update(members,heightProfile);
-    }
 
     public static List<Path> getPathList() {
         return pathList;
@@ -71,11 +51,10 @@ public class RobotGroup{
             if (LEADER_COUNT-1 > i)members.add(new Quadrotor("Quadricopter#" + Integer.toString(i), "Quadricopter_target#" + Integer.toString(i), true));
             else members.add(new Quadrotor("Quadricopter#" + Integer.toString(i), "Quadricopter_target#" + Integer.toString(i), false));
         }
-        initHeightProfile();
     }
 
     public static void initVrepMembers(VrepSession session){
-        RobotGroup.getMembers().stream().forEach(unit -> {
+        Swarm.getMembers().stream().forEach(unit -> {
             int clientID = session.getClientId();
             remoteApi vrep = session.getVrep();
 
@@ -112,7 +91,7 @@ public class RobotGroup{
     }
 
     public static void launchDownloadBuffer(VrepSession session){
-        RobotGroup.getMembers().stream().forEach(unit -> {
+        Swarm.getMembers().stream().forEach(unit -> {
             int clientID = session.getClientId();
             remoteApi vrep = session.getVrep();
 
@@ -142,7 +121,7 @@ public class RobotGroup{
     }
 
     public static void downloadMembers(VrepSession session){
-        RobotGroup.getMembers().stream().forEach(unit -> {
+        Swarm.getMembers().stream().forEach(unit -> {
             int clientID = session.getClientId();
             remoteApi vrep = session.getVrep();
 
@@ -174,7 +153,7 @@ public class RobotGroup{
     }
 
     public static void uploadVrepMembers(VrepSession session){
-        RobotGroup.getMembers().stream().forEach(unit -> {
+        Swarm.getMembers().stream().forEach(unit -> {
             int clientID = session.getClientId();
             remoteApi vrep = session.getVrep();
 
@@ -216,10 +195,6 @@ public class RobotGroup{
 
     public static boolean withinCommunicationRange(Unit a, Unit b){
         return a.getPosition().distance(b.getPosition()) < ROBOT_COMMUNICATION_RANGE;
-    }
-
-    public static HeightProfile getGroupHeightProfile(){
-        return heightProfile;
     }
 
     public static Void loop(Long input) {

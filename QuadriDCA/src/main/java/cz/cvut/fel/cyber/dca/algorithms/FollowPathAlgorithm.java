@@ -14,9 +14,9 @@ public class FollowPathAlgorithm implements Loopable<Quadrotor, Vector3> {
     @Override
     public Vector3 loop(Quadrotor input) {
         List<DummyCheckpoint> checkpointList = new ArrayList<>();
-        List<Path> pathList = RobotGroup.getPathList();
-        if (RobotGroup.getPathList().stream().filter(path -> path.getIndex()==input.getId()).findAny().isPresent())
-            checkpointList = RobotGroup.getPathList().stream().filter(path -> path.getIndex()==input.getId())
+        List<Path> pathList = Swarm.getPathList();
+        if (Swarm.getPathList().stream().filter(path -> path.getIndex()==input.getId()).findAny().isPresent())
+            checkpointList = Swarm.getPathList().stream().filter(path -> path.getIndex()==input.getId())
                                                                                     .findAny().get().getCheckpointList();
 
         if(checkpointList.size()==0)return new Vector3();

@@ -18,7 +18,7 @@ import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.DIMENSION;
 public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Quadrotor,Vector3> {
 
     private int lambda = 2;
-    private double param = 0.2;
+    private double param = 1;
 
     private void handleBoundaryHopDistance(Quadrotor input){
         if(input.isBoundary())input.getThicknessDeterminationData().setB(0);
@@ -54,59 +54,26 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
     }
 
     private Vector3 computeThicknessContractionForce(Quadrotor unit){
-        Vector3 thicknessForce = new Vector3();
+        final Vector3 thicknessForce = new Vector3();
         int thickness = unit.getThicknessDeterminationData().getT();
         int centerHopDistance = unit.getThicknessDeterminationData().getH();
 
-        if(unit.isBoundary()){
-            if(unit.getVisibleNeighbors().stream().filter(neighbor-> neighbor.isBoundary()).collect(Collectors.toList()).size() >= 2 ){
+        if(unit.getReducedNeighbors().size() >= 2 ){
+                Set<Quadrotor> reducedNeighbors = unit.getReducedNeighbors();
 
-                Set<Quadrotor> boundaryRobots = unit.getBoundaryNeighbors();
-                if(boundaryRobots.isEmpty()||boundaryRobots.size()<3)return new Vector3();
-
-                boundaryRobots = boundaryRobots.stream().sorted((a,b) -> {
-                    if (a.getPosition().distance(unit.getPosition()) > b.getPosition().distance(unit.getPosition()))return 1;
-                 else return -1;
-                }).collect(Collectors.toSet());
-
-                Unit firstNeighbor = (Unit)boundaryRobots.toArray()[0];
-                 Unit secondNeighbor = (Unit)boundaryRobots.toArray()[1];
-
-                Vector3 firstPos = unit.getRelativeLocalization(firstNeighbor);
-                Vector3 secondPos = unit.getRelativeLocalization(secondNeighbor);
-
-                firstPos.unitVector();
-                secondPos.unitVector();
-
-                thicknessForce =  Vector3.plus(firstPos,secondPos);
-                thicknessForce.timesScalar(-1);
-            }
-        }else{
-            if(unit.getVisibleNeighbors().size() >= 2 ){
-
-                Set<Quadrotor> visibleNeighbors = unit.getVisibleNeighbors();
-                if(visibleNeighbors.isEmpty()||visibleNeighbors.size()<3)return new Vector3();
-
-                visibleNeighbors = visibleNeighbors.stream().sorted((a,b) -> {
+                reducedNeighbors = reducedNeighbors.stream().sorted((a,b) -> {
                     if (a.getThicknessDeterminationData().getH() < b.getThicknessDeterminationData().getH())return 1;
                     else return -1;
                 }).collect(Collectors.toSet());
 
-                Unit firstNeighbor = (Unit)visibleNeighbors.toArray()[0];
-                Unit secondNeighbor = (Unit)visibleNeighbors.toArray()[1];
-
-                Vector3 firstPos = unit.getRelativeLocalization(firstNeighbor);
-                Vector3 secondPos = unit.getRelativeLocalization(secondNeighbor);
-
-                firstPos.unitVector();
-                secondPos.unitVector();
-
-                thicknessForce =  Vector3.plus(firstPos,secondPos);
-                thicknessForce.timesScalar(-1);
-            }
-
+                reducedNeighbors.stream().forEach(neighbor ->{
+                    Vector3 increment = unit.getRelativeLocalization(neighbor).newUnitVector();
+                    increment.timesScalar(1/1+neighbor.getThicknessDeterminationData().getH());
+                    thicknessForce.plus(increment);
+                });
         }
-        thicknessForce.timesScalar(thickness*centerHopDistance);
+
+        thicknessForce.timesScalar(thickness);
         return thicknessForce;
 
     }

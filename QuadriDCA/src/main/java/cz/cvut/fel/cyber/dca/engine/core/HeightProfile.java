@@ -10,7 +10,7 @@ public class HeightProfile {
 
     private List<HeightLayer> layers;
 
-    private int defaultLayer = 1;
+    private int defaultLayer = 2;
 
     public HeightProfile() {
         layers = new ArrayList<>();
@@ -20,7 +20,12 @@ public class HeightProfile {
         return layers;
     }
 
-    public int getDefaultLayer() {
+    public HeightLayer getDefaultLayer(){
+        return layers.get(defaultLayer);
+    }
+
+    public int getDefaultLayerIndex(){
         return defaultLayer;
     }
+
 }

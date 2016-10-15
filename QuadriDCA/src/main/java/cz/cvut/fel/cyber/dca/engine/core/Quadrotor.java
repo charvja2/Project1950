@@ -41,6 +41,8 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
 
     private int lastCheckpoint;
 
+    private HeightProfile heightProfile;
+
     public Quadrotor(String vrepObjectName, String vrepTargetName, boolean leader) {
         super(vrepObjectName, vrepTargetName);
 
@@ -49,22 +51,24 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         this.convexBoundary = false;
         this.tailRobot = true;
 
-        this.allowedHeightRangeMin = ROBOT_MIN_SAFETY_HEIGHT;
-        this.allowedHeightRangeMax = ROBOT_MAX_SAFETY_HEIGHT;
-
         if(leader){
             leaderCount++;
         }
-        iterationCounter = 0;
-        lastCheckpoint = 0;
-        leaderInfo = new ArrayList<>();
-        thicknessDeterminationData = new ThicknessDeterminationData(iterationCounter,getId());
-        receivedStabilityImprovementData = new ArrayList<>();
-        densityData = new DensityData();
+        this.iterationCounter = 0;
+        this.lastCheckpoint = 0;
+        this.leaderInfo = new ArrayList<>();
+        this.thicknessDeterminationData = new ThicknessDeterminationData(iterationCounter,getId());
+        this.receivedStabilityImprovementData = new ArrayList<>();
+        this.densityData = new DensityData();
+
+        this.heightProfile = initHeightProfile();
+
+        this.allowedHeightRangeMin = ROBOT_MIN_SAFETY_HEIGHT;
+        this.allowedHeightRangeMax = ROBOT_MAX_SAFETY_HEIGHT;
     }
 
     public Set<Quadrotor> getNeighbors(){
-        Set<Quadrotor> neighbors = RobotGroup.getMembers().stream().filter(
+        Set<Quadrotor> neighbors = Swarm.getMembers().stream().filter(
                 unit -> ROBOT_COMMUNICATION_RANGE > unit.getPosition().distance(getPosition())).collect(Collectors.toSet());
         neighbors = neighbors.stream().filter(unit -> unit.getId() != getId()).collect(Collectors.toSet());
         return neighbors;
@@ -128,7 +132,7 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
     }
 
     public Set<Quadrotor> getLeaders(){
-        Set<Quadrotor> leaders = RobotGroup.getMembers().stream().filter(
+        Set<Quadrotor> leaders = Swarm.getMembers().stream().filter(
                 unit -> unit.isLeader()).collect(Collectors.toSet());
         return leaders;
     }
@@ -144,8 +148,8 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
 
     public Vector3 getRelativeLocalization(Unit neighbor){
         if(neighbor==null)throw new NullPointerException();
-        if(RobotGroup.getMembers().stream().filter(u -> u.getId()==neighbor.getId()).findAny().isPresent())
-            return getRelativeLocalization(RobotGroup.getMembers().stream().filter(u -> u.getId()==neighbor.getId()).findAny().get().getPosition());
+        if(Swarm.getMembers().stream().filter(u -> u.getId()==neighbor.getId()).findAny().isPresent())
+            return getRelativeLocalization(Swarm.getMembers().stream().filter(u -> u.getId()==neighbor.getId()).findAny().get().getPosition());
         else return new Vector3();
     }
 
@@ -159,10 +163,30 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         return getPosition().getZ();
     }
 
-    public HeightLayer getLayer(){
-        if (RobotGroup.getLayerMapper().getLayerMapper().entrySet().stream().filter(entry -> entry.getKey().equals(this)).findFirst().isPresent())
-            return RobotGroup.getLayerMapper().getLayerMapper().entrySet().stream().filter(entry -> entry.getKey().equals(this)).findFirst().get().getValue();
+    public HeightProfile getHeightProfile() {
+        return heightProfile;
+    }
+
+    public HeightLayer getCurrentLayer(){
+        if (getLayerMapper().getLayerMapper().entrySet().stream().filter(entry -> entry.getKey().equals(this)).findFirst().isPresent())
+            return getLayerMapper().getLayerMapper().entrySet().stream().filter(entry -> entry.getKey().equals(this)).findFirst().get().getValue();
         else return null;
+    }
+
+    private HeightProfile initHeightProfile(){
+        HeightProfile profile = new HeightProfile();
+        for(int i = 0; i <= ROBOT_MAX_SAFETY_HEIGHT; i+= HEIGHT_LAYER_HEIGHT){
+            profile.getLayers().add(new HeightLayer(i,i+HEIGHT_LAYER_HEIGHT));
+        }
+        return profile;
+    }
+
+    public HeightLayerMapper getLayerMapper(){
+        HeightLayerMapper mapper = new HeightLayerMapper();
+        List<Quadrotor> quadrotors = new ArrayList<>();
+        quadrotors.addAll(getNeighbors());
+        mapper.update(quadrotors, heightProfile);
+        return mapper;
     }
 
     public double getDistance(Quadrotor neighbor){
@@ -205,6 +229,8 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         if(THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED) {
             getReducedNeighbors().stream().forEach(neighbor -> neighbor.sendStabilityImprovementData(this, thicknessDeterminationData));
             getThicknessDeterminationData().setTimeStamp(getThicknessDeterminationData().getTimeStamp()+1);
+            receivedStabilityImprovementData = receivedStabilityImprovementData.stream()
+                            .filter(data -> !getReducedNeighbors().contains(data.getKey())).collect(Collectors.toList());
         }
     }
 
@@ -351,9 +377,9 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
                 velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
                 System.out.println("Leader follows checkpoints  :::: " + getId() + " ::::: " + velocity.toString());
 
-            }else{
+            }/*else{
                 return null;
-            }
+            }*/
         }
 
 
@@ -368,6 +394,7 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         if(HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED){
             Vector3 heightForce = AlgorithmLibrary.getHeightLayerControlAlgorithm().loop(this);
             velocity.plus(Vector3.timesScalar(heightForce,(double) (System.currentTimeMillis() - input.longValue()) / 1000));
+            System.out.println("Height force :: " + heightForce.toString());
         }
 
         if(velocity.norm3()>ROBOT_MAX_VELOCITY)velocity.timesScalar(ROBOT_MAX_VELOCITY/velocity.norm3());

@@ -25,9 +25,9 @@ public class BlackBoxDataCollector{
     private static int iteration = 0;
     private static int skipIterations = 5;
 
-    private static List<String> positionRecords = new ArrayList<>(RobotGroup.getMembers().size());
-    private static List<String> boundaryRecords = new ArrayList<>(RobotGroup.getMembers().size());
-    private static List<String> connectionRecords = new ArrayList<>(RobotGroup.getMembers().size());
+    private static List<String> positionRecords = new ArrayList<>(Swarm.getMembers().size());
+    private static List<String> boundaryRecords = new ArrayList<>(Swarm.getMembers().size());
+    private static List<String> connectionRecords = new ArrayList<>(Swarm.getMembers().size());
 
 
     public static void logUnit(Quadrotor quadracopter){
@@ -35,20 +35,20 @@ public class BlackBoxDataCollector{
         boundaryRecords.add(quadracopter.getId(), quadracopter.isBoundary() ? "1" : "0");
         String conns = "";
         String reducedConns = "";
-        for(int i = 0; i < RobotGroup.getMembers().size(); i++){
-            if((RobotGroup.getMembers().get(i).getId()==quadracopter.getId())||(!quadracopter.getNeighbors().contains(RobotGroup.getMembers().get(i)))){
+        for(int i = 0; i < Swarm.getMembers().size(); i++){
+            if((Swarm.getMembers().get(i).getId()==quadracopter.getId())||(!quadracopter.getNeighbors().contains(Swarm.getMembers().get(i)))){
                 conns += "0";
 
             }else {
                 conns += "1";
             }
-            if((RobotGroup.getMembers().get(i).getId()==quadracopter.getId())||(!quadracopter.getReducedNeighbors().contains(RobotGroup.getMembers().get(i)))){
+            if((Swarm.getMembers().get(i).getId()==quadracopter.getId())||(!quadracopter.getReducedNeighbors().contains(Swarm.getMembers().get(i)))){
                 reducedConns += "0";
 
             }else {
                 reducedConns += "1";
             }
-            if(i!=RobotGroup.getMembers().size()-1){
+            if(i!= Swarm.getMembers().size()-1){
                 conns += " ";
                 reducedConns += " ";
             }
@@ -59,13 +59,13 @@ public class BlackBoxDataCollector{
     }
 
     public static void logAll(){
-        RobotGroup.getMembers().stream().forEach(BlackBoxDataCollector::logUnit);
+        Swarm.getMembers().stream().forEach(BlackBoxDataCollector::logUnit);
     }
 
     public static List<String> createExperimentInfoLog(){
         List<String> info = new ArrayList<>();
-        info.add(Integer.toString(RobotGroup.getMembers().size()));
-        info.add(Integer.toString(RobotGroup.getLeaders().size()));
+        info.add(Integer.toString(Swarm.getMembers().size()));
+        info.add(Integer.toString(Swarm.getLeaders().size()));
         return info;
     }
 

@@ -2,14 +2,11 @@ package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Loopable;
 import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
-import cz.cvut.fel.cyber.dca.engine.core.RobotGroup;
-import cz.cvut.fel.cyber.dca.engine.core.Unit;
+import cz.cvut.fel.cyber.dca.engine.core.Swarm;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 import javafx.util.Pair;
 
-import java.lang.reflect.Parameter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.DIMENSION;
 
@@ -27,7 +24,7 @@ public class BoundaryTension implements Loopable<Quadrotor, Vector3> {
 
     @Override
     public Vector3 loop(Quadrotor input) {
-        if(RobotGroup.getMembers().size()<3)return new Vector3();
+        if(Swarm.getMembers().size()<3)return new Vector3();
 
         Map<Pair<Quadrotor,Quadrotor>, Double> emptySectors = BoundaryCommon.findEmptySectors(input);
 
