@@ -15,17 +15,35 @@ import java.util.stream.Collectors;
  */
 public class BoundaryCommon {
 
-    public static List<Quadrotor> sortNeighbors(Quadrotor unit){
+    public static List<Quadrotor> sortNeighborsX(Quadrotor unit){
         return unit.getNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
-            if (Math.atan2(relLocMapper.get(a).toVector2().getY(), relLocMapper.get(a).toVector2().getX())
-                    > Math.atan2(relLocMapper.get(b).toVector2().getY(), relLocMapper.get(b).toVector2().getX())) return 1;
+            if (Math.atan2(relLocMapper.get(a).getZ(), relLocMapper.get(a).getY())
+                    > Math.atan2(relLocMapper.get(b).getZ(), relLocMapper.get(b).getY())) return 1;
             else return -1;
         }).collect(Collectors.toList());
     }
 
-    public static Map<Pair<Quadrotor, Quadrotor>, Double> findEmptySectors(Quadrotor unit){
-        List<Quadrotor> neighbors = sortNeighbors(unit);
+    public static List<Quadrotor> sortNeighborsY(Quadrotor unit){
+        return unit.getNeighbors().stream().sorted((a, b) -> {
+            Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
+            if (Math.atan2(relLocMapper.get(a).getZ(), relLocMapper.get(a).getX())
+                    > Math.atan2(relLocMapper.get(b).getZ(), relLocMapper.get(b).getX())) return 1;
+            else return -1;
+        }).collect(Collectors.toList());
+    }
+
+    public static List<Quadrotor> sortNeighborsZ(Quadrotor unit){
+        return unit.getNeighbors().stream().sorted((a, b) -> {
+            Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
+            if (Math.atan2(relLocMapper.get(a).getY(), relLocMapper.get(a).getX())
+                    > Math.atan2(relLocMapper.get(b).getY(), relLocMapper.get(b).getX())) return 1;
+            else return -1;
+        }).collect(Collectors.toList());
+    }
+
+    public static Map<Pair<Quadrotor, Quadrotor>, Double> findEmptySectorsZ(Quadrotor unit){
+        List<Quadrotor> neighbors = sortNeighborsZ(unit);
         Map<Pair<Quadrotor,Quadrotor>,Double> emptySectors = new HashMap<>();
         Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
 

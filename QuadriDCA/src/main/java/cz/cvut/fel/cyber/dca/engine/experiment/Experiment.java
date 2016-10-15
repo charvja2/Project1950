@@ -1,5 +1,7 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
+import cz.cvut.fel.cyber.dca.engine.gui.ControlGui;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,6 +51,9 @@ public class Experiment {
     //public static String EXPERIMENT_CONFIG_FILENAME = "tri.txt";
 
     public static boolean FLIGHT_RECORDING = true;
+
+
+    public static ExperimentController experimentController;
 
     private static void loadConfigFile(String filename){
         try {
@@ -110,9 +115,11 @@ public class Experiment {
     public static void main(String args[]) {
         loadConfigFile("ExperimentConfig/" + EXPERIMENT_CONFIG_FILENAME);
 
-        ExperimentController controller = new ExperimentController();
+        experimentController = new ExperimentController();
+        (new Thread(experimentController)).start();
 
-        (new Thread(controller)).start();
+        String[] arguments = {"ControlGui"};
+        ControlGui.main(arguments);
     }
 
 

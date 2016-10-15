@@ -25,7 +25,7 @@ public class DensityAlgorithm implements Loopable<Quadrotor, Vector3> {
         }
         else {
             if(DIMENSION == 2){
-                Map<Pair<Quadrotor,Quadrotor>,Double> emptySectors = BoundaryCommon.findEmptySectors(unit);
+                Map<Pair<Quadrotor,Quadrotor>,Double> emptySectors = BoundaryCommon.findEmptySectorsZ(unit);
 
                 Optional<Map.Entry<Pair<Quadrotor,Quadrotor>,Double>> optSector = emptySectors.entrySet().stream()
                         .max((a, b) -> (a.getValue()>b.getValue()) ? 1 : -1);

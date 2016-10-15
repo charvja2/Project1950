@@ -26,7 +26,7 @@ public class BoundaryTension implements Loopable<Quadrotor, Vector3> {
     public Vector3 loop(Quadrotor input) {
         if(Swarm.getMembers().size()<3)return new Vector3();
 
-        Map<Pair<Quadrotor,Quadrotor>, Double> emptySectors = BoundaryCommon.findEmptySectors(input);
+        Map<Pair<Quadrotor,Quadrotor>, Double> emptySectors = BoundaryCommon.findEmptySectorsZ(input);
 
         if(emptySectors.isEmpty())return new Vector3();
 
