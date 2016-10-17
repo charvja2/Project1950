@@ -9,12 +9,13 @@ import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 public class HeightLayerControlAlgorithm implements Loopable<Quadrotor,Vector3> {
 
     private double speed = 0.7;
-    private double param = 5;
+    private double param = 2;
 
     private HeightLayer rule(Quadrotor unit){
+        if(unit.isLandingCmd()) return unit.getHeightProfile().getLayers().get(0);
         if(unit.isLeader()) return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()+1);
-        if(!unit.isBoundary())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
-        else return unit.getHeightProfile().getDefaultLayer();
+        //if(!unit.isBoundary())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
+        /*else*/ return unit.getHeightProfile().getDefaultLayer();
     }
 
     @Override
@@ -25,12 +26,18 @@ public class HeightLayerControlAlgorithm implements Loopable<Quadrotor,Vector3> 
 
         Vector3 layerForce = new Vector3();
 
-        if(defaultLayer.inRange(height)){
-            double difference = defaultLayer.getLayerOptimalHeight()-height;
-            if(Math.abs(difference)<0.05)return new Vector3();
-            else layerForce.setZ(0.7*speed*difference);
+
+        double difference;
+        if(input.isLandingCmd()){
+            difference = defaultLayer.getLayerMinHeight()+0.2-height;
         }else{
-            double difference = defaultLayer.getLayerOptimalHeight()-height;
+            difference = defaultLayer.getLayerOptimalHeight()-height;
+        }
+
+        if(defaultLayer.inRange(height)){/*
+            if(Math.abs(difference)<0.05)return new Vector3();
+            else layerForce.setZ(0.7*speed*difference);*/
+        }else{
             layerForce.setZ(speed*difference);
         }
 

@@ -8,7 +8,9 @@ public class AlgorithmLibrary {
     private static BoidAlgorithm boidAlgorithm = new BoidAlgorithm();
     private static FlockingAlgorithm flockingAlgorithm = new FlockingAlgorithm();
     private static BoundaryDetection boundaryDetectionAlgorithm = new BoundaryDetection();
+    private static BoundaryDetection3D boundaryDetection3DAlgorithm = new BoundaryDetection3D();
     private static BoundaryTension boundaryTensionAlgorithm = new BoundaryTension();
+    private static BoundaryTension3D boundaryTension3DAlgorithm = new BoundaryTension3D();
     private static LeaderFollowAlgorithm leaderFollowAlgorithm = new LeaderFollowAlgorithm();
     private static ThicknessDeterminationNContractionAlgorithm thicknessDeterminationNContractionAlgorithm = new ThicknessDeterminationNContractionAlgorithm();
     private static DensityAlgorithm densityAlgorithm = new DensityAlgorithm();
@@ -22,6 +24,10 @@ public class AlgorithmLibrary {
 
     public static BoundaryDetection getBoundaryDetectionAlgorithm() {
         return boundaryDetectionAlgorithm;
+    }
+
+    public static BoundaryDetection3D getBoundaryDetection3DAlgorithm() {
+        return boundaryDetection3DAlgorithm;
     }
 
     public static LeaderFollowAlgorithm getLeaderFollowAlgorithm() {
@@ -38,6 +44,10 @@ public class AlgorithmLibrary {
 
     public static BoundaryTension getBoundaryTensionAlgorithm() {
         return boundaryTensionAlgorithm;
+    }
+
+    public static BoundaryTension3D getBoundaryTension3DAlgorithm() {
+        return boundaryTension3DAlgorithm;
     }
 
     public static DensityAlgorithm getDensityAlgorithm() {

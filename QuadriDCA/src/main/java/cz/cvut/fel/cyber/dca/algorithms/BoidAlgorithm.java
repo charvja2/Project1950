@@ -89,7 +89,7 @@ public class BoidAlgorithm implements Loopable<Quadrotor, Vector3> {
 
         velocity.plus(input.getLinearVelocity());
         velocity.timesScalar(param);
-        //velocity.setZ(0);
+        if(DIMENSION==2)velocity.setZ(0);
 
         return velocity;
     }

@@ -1,13 +1,17 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
+import coppelia.remoteApi;
 import cz.cvut.fel.cyber.dca.engine.core.*;
+import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
 import cz.cvut.fel.cyber.dca.engine.util.StopWatch;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
+import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.simulationTimeMillis;
 
 /**
  * Created by Jan on 25. 10. 2015.
@@ -76,16 +80,21 @@ public class ExperimentController implements Runnable{
             Swarm.downloadMembers(session);
             Swarm.loop(startTime);
             if(FLIGHT_RECORDING){
-                BlackBoxDataCollector.logAll();                     // recorder log data
+                BlackBoxDataCollector.logAll();                     // recorder exportData data
                 BlackBoxDataCollector.writeRecord();
             }
             Swarm.uploadVrepMembers(session);
+            getSimulationTime(session);
         }
 
         session.getVrep()
                 .simxAddStatusbarMessage(session.getClientId(), "Disconnected from Java client!", session.getVrep().simx_opmode_oneshot);
 
         session.disconnect();
+    }
+
+    public void getSimulationTime(VrepSession session){
+        CURRENT_SIMULATION_MILLIS = session.getVrep().simxGetLastCmdTime(session.getClientId());
     }
 
 

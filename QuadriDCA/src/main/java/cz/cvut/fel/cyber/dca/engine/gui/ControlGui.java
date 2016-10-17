@@ -1,5 +1,6 @@
 package cz.cvut.fel.cyber.dca.engine.gui;
 
+import cz.cvut.fel.cyber.dca.engine.core.Swarm;
 import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -7,11 +8,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Jan on 09.10.2016.
@@ -26,12 +31,18 @@ public class ControlGui extends Application {
     @Override
     public void start(Stage primaryStage) {
         TextArea textArea = new TextArea("");
-        textArea.setMinHeight(40.0);
+        textArea.setMinHeight(800.0);
 
         ServiceLogger.register(textArea);
         TextField inputField = new TextField("");
         inputField.setFocusTraversable(false);
 
+
+        List<Label> labelList = new ArrayList<>();
+        ServiceLogger.registerLabelList(labelList);
+        Swarm.getMembers().stream().forEach(member -> labelList.add(member.getId(), new Label(Integer.toString(member.getId()))));
+
+        Label simTimeLabel = new Label("");
         Button connectButton = new Button("Connect");
         Button flockingBtn = new Button("Flocking");
         Button boundaryDetBtn = new Button("Boundary det");
@@ -40,8 +51,9 @@ public class ControlGui extends Application {
         Button thicknessBtn = new Button("Thickness");
         Button densityBtn = new Button("Density");
         Button heightControlBtn = new Button("Height");
+        Button followPathBtn = new Button("Follow path");
         Button dimensionBtn = new Button("Dimension 2D/3D");
-        Button recordBtn = new Button("Data collect");
+        Button recordBtn = new Button("Data log");
         Button stopButton = new Button("Stop");
 
         setBackCol(flockingBtn, Experiment.FLOCKING_ALGORITHM_ACTIVATED);
@@ -52,6 +64,8 @@ public class ControlGui extends Application {
         setBackCol(densityBtn, Experiment.DENSITY_ALGORITHM_ACTIVATED);
         setBackCol(heightControlBtn, Experiment.HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED);
         setBackCol(recordBtn, Experiment.FLIGHT_RECORDING);
+        setBackCol(followPathBtn, Experiment.LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED);
+
         dimensionBtn.setText("Dimension " + Integer.toString(Experiment.DIMENSION)+"D");
 
 
@@ -90,6 +104,11 @@ public class ControlGui extends Application {
             setBackCol(heightControlBtn, Experiment.HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED);
         });
 
+        followPathBtn.setOnAction(event1 -> {
+            Experiment.LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED = !Experiment.LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED;
+            setBackCol(followPathBtn, Experiment.LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED);
+        });
+
         dimensionBtn.setOnAction(event1 -> {
             if(Experiment.DIMENSION == 2) Experiment.DIMENSION = 3;
             else Experiment.DIMENSION = 2;
@@ -112,10 +131,13 @@ public class ControlGui extends Application {
 
 
         VBox centerPane = new VBox();
+        VBox labelPane = new VBox();
         HBox buttonPane = new HBox();
         centerPane.getChildren().addAll(inputField);
+        labelPane.getChildren().addAll(labelList);
         buttonPane.getChildren().addAll(flockingBtn, boundaryDetBtn, boundaryTenBtn,
-                leaderFollowBtn, thicknessBtn, densityBtn, heightControlBtn, dimensionBtn, recordBtn, connectButton, stopButton);
+                leaderFollowBtn, thicknessBtn, densityBtn, heightControlBtn, followPathBtn, dimensionBtn, recordBtn, connectButton, stopButton);
+
 
         VBox centerBox = new VBox();
         centerBox.setAlignment(Pos.CENTER);
@@ -124,10 +146,16 @@ public class ControlGui extends Application {
         root.getChildren().add(centerPane);
         root.getChildren().add(buttonPane);
         root.getChildren().add(textArea);
+        root.getChildren().add(labelPane);
 
         AnchorPane.setBottomAnchor(textArea,25.0);
+        AnchorPane.setBottomAnchor(labelPane,25.0);
         AnchorPane.setLeftAnchor(textArea,0.0);
-        AnchorPane.setRightAnchor(textArea,0.0);
+       // AnchorPane.setLeftAnchor(labelPane,505.0);
+        //AnchorPane.setRightAnchor(textArea,495.0);
+        AnchorPane.setRightAnchor(labelPane,0.0);
+        AnchorPane.setTopAnchor(textArea,35.0);
+        AnchorPane.setTopAnchor(labelPane,35.0);
 
         AnchorPane.setBottomAnchor(centerPane,0.0);
         AnchorPane.setLeftAnchor(centerPane,0.0);
@@ -154,7 +182,7 @@ public class ControlGui extends Application {
         });
 
 
-        Scene scene = new Scene(root, 1000, 250);
+        Scene scene = new Scene(root, 1000, 400);
 
         primaryStage.setTitle("V-REP EXPERIMENT CONTROLLER!");
         primaryStage.setScene(scene);

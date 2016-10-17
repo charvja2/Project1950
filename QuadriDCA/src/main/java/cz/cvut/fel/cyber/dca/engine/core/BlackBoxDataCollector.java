@@ -31,7 +31,7 @@ public class BlackBoxDataCollector{
 
 
     public static void logUnit(Quadrotor quadracopter){
-        positionRecords.add(quadracopter.getId(), quadracopter.log());
+        positionRecords.add(quadracopter.getId(), quadracopter.exportData());
         boundaryRecords.add(quadracopter.getId(), quadracopter.isBoundary() ? "1" : "0");
         String conns = "";
         String reducedConns = "";

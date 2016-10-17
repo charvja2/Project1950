@@ -11,6 +11,8 @@ import java.nio.file.Paths;
  */
 public class Experiment {
 
+    public static int CURRENT_SIMULATION_MILLIS = 0;
+
     public static int DIMENSION = 3;
     public static double ROBOT_COMMUNICATION_RANGE = 3;         // interaction range
     public static double ROBOT_DESIRED_DISTANCE = 2;            // scale
@@ -46,74 +48,16 @@ public class Experiment {
     public static double ROBOT_MIN_SAFETY_HEIGHT = 2.0;
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
-
     public static String EXPERIMENT_CONFIG_FILENAME = "quadricopters2.txt";
-    //public static String EXPERIMENT_CONFIG_FILENAME = "tri.txt";
 
     public static boolean FLIGHT_RECORDING = true;
 
 
+    public static int simulationTimeMillis = 0;
     public static ExperimentController experimentController;
 
-    private static void loadConfigFile(String filename){
-        try {
-            Files.lines(Paths.get(filename)).forEach(line ->{
-                if(line.contains("=")){
-                    String[] param = line.split(" = ");
-                    String key = param[0];
-                    String value = param[1];
-
-                    if(key.equals("ROBOT_COMMUNICATION_RANGE")){
-                        ROBOT_COMMUNICATION_RANGE = Double.parseDouble(value);
-                    }else if(key.equals("ROBOT_SAFETY_ZONE")){
-                        ROBOT_SAFETY_ZONE = Double.parseDouble(value);
-                    }else if(key.equals("ROBOT_MAX_VELOCITY")){
-                        ROBOT_MAX_VELOCITY = Double.parseDouble(value);
-                    }else if(key.equals("LEADER_MAX_VELOCITY")){
-                        LEADER_MAX_VELOCITY = Double.parseDouble(value);
-                    }else if(key.equals("ROBOT_DESIRED_DISTANCE")){
-                        ROBOT_DESIRED_DISTANCE = Double.parseDouble(value);
-                    }else if(key.equals("ROBOT_COUNT")){
-                        ROBOT_COUNT = Integer.parseInt(value);
-                    }else if(key.equals("LEADER_COUNT")){
-                        LEADER_COUNT = Integer.parseInt(value);
-                    }else if(key.equals("SIMULATION_STEP_MILLIS")){
-                        SIMULATION_STEP_MILLIS = Integer.parseInt(value);
-                    }else if(key.equals("FAILURE_RATE_PER_SEC")){
-                        FAILURE_RATE_PER_SEC = Double.parseDouble(value.split("/")[0])/Double.parseDouble(value.split("/")[1]);
-                    }else if(key.equals("BOID_ALGORITHM_ACTIVATED")){
-                        BOID_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("FLOCKING_ALGORITHM_ACTIVATED")){
-                        FLOCKING_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("BOUNDARY_DETECTION_ALGORITHM_ACTIVATED")){
-                        BOUNDARY_DETECTION_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("BOUNDARY_TENSION_ALGORITHM_ACTIVATED")){
-                        BOUNDARY_TENSION_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("LEADER_FOLLOW_ALGORITHM_ACTIVATED")){
-                        LEADER_FOLLOW_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED")){
-                        THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("DENSITY_ALGORITHM_ACTIVATED")){
-                        DENSITY_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED")){
-                        LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED = Boolean.parseBoolean(value);
-                    }else if(key.equals("CHECKPOINT_COUNT")){
-                        CHECKPOINT_COUNT = Integer.parseInt(value);
-                    }else{
-                        if(!key.contains("//"))System.out.println("Unknown parameter: " + line);
-                    }
-
-                }
-
-            });
-        } catch (IOException e) {
-            System.out.println("Failed to load config file!\n");
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String args[]) {
-        loadConfigFile("ExperimentConfig/" + EXPERIMENT_CONFIG_FILENAME);
+        ConfigFileLoader.loadConfig(EXPERIMENT_CONFIG_FILENAME);
 
         experimentController = new ExperimentController();
         (new Thread(experimentController)).start();

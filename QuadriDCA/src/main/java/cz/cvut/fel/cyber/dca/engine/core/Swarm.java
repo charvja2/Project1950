@@ -8,7 +8,6 @@ package cz.cvut.fel.cyber.dca.engine.core;
 import coppelia.FloatWA;
 import coppelia.IntW;
 import coppelia.remoteApi;
-import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 
 import java.util.ArrayList;
@@ -199,7 +198,7 @@ public class Swarm {
 
     public static Void loop(Long input) {
         members.stream().forEach(unit -> unit.loop(input));
-        members.stream().forEach(unit -> unit.log());
+        members.stream().forEach(unit -> unit.exportData());
 
         return null;
     }

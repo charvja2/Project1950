@@ -4,8 +4,11 @@ import cz.cvut.fel.cyber.dca.algorithms.AlgorithmLibrary;
 import cz.cvut.fel.cyber.dca.engine.data.DensityData;
 import cz.cvut.fel.cyber.dca.engine.data.LeaderFollowInfo;
 import cz.cvut.fel.cyber.dca.engine.data.ThicknessDeterminationData;
+import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
+import cz.cvut.fel.cyber.dca.engine.util.LogicalVector;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 import javafx.util.Pair;
+import sun.plugin.javascript.navig4.Layer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +29,13 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
     protected boolean convexBoundary;
     protected boolean tailRobot;
 
+    protected LogicalVector boundaryVector;
+    protected LogicalVector convexBoundaryVector;
+
+    protected boolean landingCmd;
+    protected boolean takeOffCmd;
+    protected boolean failure;
+
     protected double allowedHeightRangeMin;
     protected double allowedHeightRangeMax;
 
@@ -42,6 +52,7 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
     private int lastCheckpoint;
 
     private HeightProfile heightProfile;
+    private Layer optimalLayer;
 
     public Quadrotor(String vrepObjectName, String vrepTargetName, boolean leader) {
         super(vrepObjectName, vrepTargetName);
@@ -50,6 +61,13 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         this.boundary = false;
         this.convexBoundary = false;
         this.tailRobot = true;
+
+        this.boundaryVector = new LogicalVector();
+        this.convexBoundaryVector = new LogicalVector();
+
+        this.takeOffCmd = false;
+        this.landingCmd = false;
+        this.failure = false;
 
         if(leader){
             leaderCount++;
@@ -71,6 +89,7 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         Set<Quadrotor> neighbors = Swarm.getMembers().stream().filter(
                 unit -> ROBOT_COMMUNICATION_RANGE > unit.getPosition().distance(getPosition())).collect(Collectors.toSet());
         neighbors = neighbors.stream().filter(unit -> unit.getId() != getId()).collect(Collectors.toSet());
+        neighbors = neighbors.stream().filter(unit -> !unit.isLandingCmd()&&!unit.isFailure()).collect(Collectors.toSet());
         return neighbors;
     }
 
@@ -201,6 +220,42 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         return allowedHeightRangeMax;
     }
 
+    public boolean isTakeOffCmd() {
+        return takeOffCmd;
+    }
+
+    public void setTakeOffCmd(boolean takeOffCmd) {
+        this.takeOffCmd = takeOffCmd;
+    }
+
+    public boolean isLandingCmd() {
+        return landingCmd;
+    }
+
+    public void setLandingCmd(boolean landingCmd) {
+        this.landingCmd = landingCmd;
+    }
+
+    public boolean isFailure() {
+        return failure;
+    }
+
+    public void setFailure(boolean failure) {
+        this.failure = failure;
+    }
+
+    public void setLeader(boolean leader) {
+        this.leader = leader;
+    }
+
+    public LogicalVector getBoundaryVector() {
+        return boundaryVector;
+    }
+
+    public LogicalVector getConvexBoundaryVector() {
+        return convexBoundaryVector;
+    }
+
     public List<Pair<Quadrotor, LeaderFollowInfo>> getLeaderInfo() {
         return leaderInfo;
     }
@@ -296,7 +351,11 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         return densityData;
     }
 
-    public String log(){
+    public String getLogMessage(){
+        return "b=" + getBoundaryVector().toString() + " b= " + isBoundary();
+    }
+
+    public String exportData(){
         return Double.toString(getPosition().getX()) + " " + Double.toString(getPosition().getY()) + " "  + Double.toString(getPosition().getZ()) + "\n" +
                     Double.toString(getLinearVelocity().getX()) + " " + Double.toString(getLinearVelocity().getY()) + " "  + Double.toString(getLinearVelocity().getZ()) + "\n";
 
@@ -312,20 +371,26 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
 
         informNeighbors();
 
-        /*System.out.println("Reduced neighborhood  of " + getId() + " ::" + getReducedNeighbors().size());
-        getReducedNeighbors().stream().forEach(neighbor -> System.out.println(neighbor.getId()));*/
-
         Vector3 velocity = new Vector3();
 
         if(BOUNDARY_DETECTION_ALGORITHM_ACTIVATED) {
-            this.boundary = AlgorithmLibrary.getBoundaryDetectionAlgorithm().loop(this);
+            if(DIMENSION == 2) this.boundary = AlgorithmLibrary.getBoundaryDetectionAlgorithm().loop(this);
+            else this.boundary = AlgorithmLibrary.getBoundaryDetection3DAlgorithm().loop(this);
             System.out.println(getId() + " >> Boundary robot: " + isBoundary());
         }
 
         Vector3 boundaryForce = new Vector3();
         if(BOUNDARY_DETECTION_ALGORITHM_ACTIVATED && BOUNDARY_TENSION_ALGORITHM_ACTIVATED) {
             if (boundary) {
-                boundaryForce = AlgorithmLibrary.getBoundaryTensionAlgorithm().loop(this);
+                if(DIMENSION==2){
+                    boundaryForce = AlgorithmLibrary.getBoundaryTensionAlgorithm().loop(this);
+                    setConvexBoundary(getConvexBoundaryVector().isX());
+                }
+                else {
+                    boundaryForce = AlgorithmLibrary.getBoundaryTension3DAlgorithm().loop(this);
+                    setConvexBoundary(getConvexBoundaryVector().and());
+                }
+
                 System.out.println("Boundary force of " + getId() + " :: " + boundaryForce.toString());
                 System.out.println("Covex boundary robot " + getId() +" :: " + isConvexBoundary()  );
                 System.out.println("Tail robot " + getId() +" :: " + isTailRobot()  );
@@ -352,8 +417,9 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
             System.out.println("Desnity data of " + getId() + " :: " + densityData.toString());
         }
 
+        Vector3 acceleration = new Vector3();
         if(FLOCKING_ALGORITHM_ACTIVATED){
-            Vector3 acceleration = AlgorithmLibrary.getFlockingAlgorithm().loop(this);
+            acceleration = AlgorithmLibrary.getFlockingAlgorithm().loop(this);
             System.out.println(getId() + ">> Acceleration >> " + acceleration.toString());
             velocity = Vector3.timesScalar(acceleration,(double) (System.currentTimeMillis() - input.longValue()) / 1000 );
         }
@@ -377,9 +443,9 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
                 velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
                 System.out.println("Leader follows checkpoints  :::: " + getId() + " ::::: " + velocity.toString());
 
-            }/*else{
+            }else if(!HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED){
                 return null;
-            }*/
+            }
         }
 
 
@@ -400,9 +466,13 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         if(velocity.norm3()>ROBOT_MAX_VELOCITY)velocity.timesScalar(ROBOT_MAX_VELOCITY/velocity.norm3());
 
         System.out.println(getId() + ">> Velocity >> " + velocity.toString());
+
+        ServiceLogger.logLabel(this, getLogMessage());
+
         if((getTargetPosition().distance(getPosition())<0.05)){
             if(!getTargetPosition().isVectorNull()){
                 Vector3 newPos = Vector3.plus(getPosition(),velocity);
+                if(isFailure())newPos.setZ(0);
                 setTargetPosition(newPos);
             }
         }
