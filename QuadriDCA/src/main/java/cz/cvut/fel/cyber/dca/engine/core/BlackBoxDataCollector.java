@@ -23,7 +23,7 @@ public class BlackBoxDataCollector{
     private static java.nio.file.Path outputConnectionFile = Paths.get(DIR_NAME + CONNECTION_FILENAME + ".txt");
 
     private static int iteration = 0;
-    private static int skipIterations = 5;
+    private static int skipIterations = 10;
 
     private static List<String> positionRecords = new ArrayList<>(Swarm.getMembers().size());
     private static List<String> boundaryRecords = new ArrayList<>(Swarm.getMembers().size());

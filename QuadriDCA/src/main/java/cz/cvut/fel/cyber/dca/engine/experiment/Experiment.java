@@ -48,10 +48,11 @@ public class Experiment {
     public static double ROBOT_MIN_SAFETY_HEIGHT = 2.0;
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
-    public static String EXPERIMENT_CONFIG_FILENAME = "quadricopters2.txt";
+    public static String EXPERIMENT_CONFIG_FILENAME = "tri.txt";
 
     public static boolean FLIGHT_RECORDING = true;
 
+    public static boolean AUTO_FAILURE = false;
 
     public static int simulationTimeMillis = 0;
     public static ExperimentController experimentController;

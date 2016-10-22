@@ -18,6 +18,14 @@ public class LeaderFollowAlgorithm implements Loopable<Quadrotor,Vector3>{
 
     private double param = -1.6;
 
+    public double getParam() {
+        return param;
+    }
+
+    public void setParam(double param) {
+        this.param = param;
+    }
+
     private Vector3 getLeaderForces(Quadrotor unit){
         Set<Quadrotor> leaders = unit.getLeaders();
         List<Pair<Quadrotor, LeaderFollowInfo>> leaderInfoList = unit.getLeaderInfo();

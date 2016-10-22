@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class BoundaryCommon {
 
     public static List<Quadrotor> sortNeighborsX(Quadrotor unit){
-        return unit.getNeighbors().stream().sorted((a, b) -> {
+        return unit.getReducedNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
             if (Math.atan2(relLocMapper.get(a).getZ(), relLocMapper.get(a).getY())
                     > Math.atan2(relLocMapper.get(b).getZ(), relLocMapper.get(b).getY())) return 1;
@@ -25,7 +25,7 @@ public class BoundaryCommon {
     }
 
     public static List<Quadrotor> sortNeighborsY(Quadrotor unit){
-        return unit.getNeighbors().stream().sorted((a, b) -> {
+        return unit.getReducedNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
             if (Math.atan2(relLocMapper.get(a).getZ(), relLocMapper.get(a).getX())
                     > Math.atan2(relLocMapper.get(b).getZ(), relLocMapper.get(b).getX())) return 1;
@@ -34,7 +34,7 @@ public class BoundaryCommon {
     }
 
     public static List<Quadrotor> sortNeighborsZ(Quadrotor unit){
-        return unit.getNeighbors().stream().sorted((a, b) -> {
+        return unit.getReducedNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
             if (Math.atan2(relLocMapper.get(a).getY(), relLocMapper.get(a).getX())
                     > Math.atan2(relLocMapper.get(b).getY(), relLocMapper.get(b).getX())) return 1;

@@ -19,7 +19,15 @@ public class FlockingAlgorithm implements Loopable<Quadrotor, Vector3>{
     private final double b = 1;
     private final double c = abs(a-b)/sqrt(4*a*b);
     private final double h = 0.4;
-    private final double param = 3;
+    private double param = 3;
+
+    public void setParam(double param) {
+        this.param = param;
+    }
+
+    public double getParam() {
+        return param;
+    }
 
     private double oNorm(Vector3 vector){
         return (1/epsilon)*(sqrt(1 + epsilon * pow(norm3(vector),2))-1);

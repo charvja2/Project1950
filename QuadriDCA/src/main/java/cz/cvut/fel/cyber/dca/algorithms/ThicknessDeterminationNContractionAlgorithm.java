@@ -20,6 +20,14 @@ public class ThicknessDeterminationNContractionAlgorithm implements Loopable<Qua
     private int lambda = 2;
     private double param = 1;
 
+    public double getParam() {
+        return param;
+    }
+
+    public void setParam(double param) {
+        this.param = param;
+    }
+
     private void handleBoundaryHopDistance(Quadrotor input){
         if(input.isBoundary())input.getThicknessDeterminationData().setB(0);
         else if(input.getReceivedStabilityImprovementData().stream().mapToInt(pair -> pair.getValue().getB()).min().isPresent()){

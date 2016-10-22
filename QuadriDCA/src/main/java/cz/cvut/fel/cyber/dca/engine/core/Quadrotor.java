@@ -4,6 +4,7 @@ import cz.cvut.fel.cyber.dca.algorithms.AlgorithmLibrary;
 import cz.cvut.fel.cyber.dca.engine.data.DensityData;
 import cz.cvut.fel.cyber.dca.engine.data.LeaderFollowInfo;
 import cz.cvut.fel.cyber.dca.engine.data.ThicknessDeterminationData;
+import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
 import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
 import cz.cvut.fel.cyber.dca.engine.util.LogicalVector;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
@@ -187,9 +188,9 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
     }
 
     public HeightLayer getCurrentLayer(){
-        if (getLayerMapper().getLayerMapper().entrySet().stream().filter(entry -> entry.getKey().equals(this)).findFirst().isPresent())
-            return getLayerMapper().getLayerMapper().entrySet().stream().filter(entry -> entry.getKey().equals(this)).findFirst().get().getValue();
-        else return null;
+        if (getHeightProfile().getLayers().stream().filter(layer -> layer.inRange(getHeight())).findAny().isPresent())
+            return getHeightProfile().getLayers().stream().filter(layer -> layer.inRange(getHeight())).findAny().get();
+        return null;
     }
 
     private HeightProfile initHeightProfile(){
@@ -198,14 +199,6 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
             profile.getLayers().add(new HeightLayer(i,i+HEIGHT_LAYER_HEIGHT));
         }
         return profile;
-    }
-
-    public HeightLayerMapper getLayerMapper(){
-        HeightLayerMapper mapper = new HeightLayerMapper();
-        List<Quadrotor> quadrotors = new ArrayList<>();
-        quadrotors.addAll(getNeighbors());
-        mapper.update(quadrotors, heightProfile);
-        return mapper;
     }
 
     public double getDistance(Quadrotor neighbor){
@@ -351,8 +344,14 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         return densityData;
     }
 
-    public String getLogMessage(){
-        return "b=" + getBoundaryVector().toString() + " b= " + isBoundary();
+    public String getLogMessage(Vector3 velocity){
+        if(isFailure()) return "Failure.";
+        String message = isLeader() ? "L " : "  ";
+        message += "B=" + getBoundaryVector().toString() + "= " + isBoundary() + "\tPOS= " + getPosition().toStringRounded()
+                + "\tVEL= " + velocity.toStringRounded() + "\tLAYER= " + getHeightProfile().getLayers().indexOf(getCurrentLayer());
+        message += THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED ? ( "\t" +thicknessDeterminationData.toString()) : "" ;
+        message += DENSITY_ALGORITHM_ACTIVATED ? (  "\t" + densityData.toString()) : "";
+        return message;
     }
 
     public String exportData(){
@@ -391,7 +390,8 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
                     setConvexBoundary(getConvexBoundaryVector().and());
                 }
 
-                System.out.println("Boundary force of " + getId() + " :: " + boundaryForce.toString());
+                System.out.println("Boundary force of " + getId() + " :: " + boundaryForce.toStringRounded());
+                ServiceLogger.log("Boundary force  (" + getId() + ") : " + boundaryForce.toStringRounded());
                 System.out.println("Covex boundary robot " + getId() +" :: " + isConvexBoundary()  );
                 System.out.println("Tail robot " + getId() +" :: " + isTailRobot()  );
             }
@@ -407,21 +407,27 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
         if(THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED){
             thicknessContractionForce = AlgorithmLibrary.getThicknessDeterminationNContractionAlgorithm().loop(this);
             System.out.println("Thickness data of " + getId() + " :: " + thicknessDeterminationData.toString());
-            System.out.println("Thickness contraction force1 of " + getId() + " :: " + thicknessContractionForce.toString());
+            System.out.println("Thickness contraction force1 of " + getId() + " :: " + thicknessContractionForce.toStringRounded());
+            ServiceLogger.log("Thickness data (" + getId() + ") :\t " + thicknessDeterminationData.toString());
+            ServiceLogger.log("Thickness force ( " + getId() + ") :\t " + thicknessContractionForce.toStringRounded());
         }
 
         Vector3 densityForce = new Vector3();
         if(DENSITY_ALGORITHM_ACTIVATED){
             densityForce = AlgorithmLibrary.getDensityAlgorithm().loop(this);
-            System.out.println("Desnity force of " + getId() + " :: " + densityForce.toString());
+            System.out.println("Desnity force of " + getId() + " :: " + densityForce.toStringRounded());
             System.out.println("Desnity data of " + getId() + " :: " + densityData.toString());
+            ServiceLogger.log("Desnity force (" + getId() + ") :\t " + densityForce.toStringRounded());
+            ServiceLogger.log("Desnity data (" + getId() + ") :\t " + densityData.toString());
         }
 
         Vector3 acceleration = new Vector3();
         if(FLOCKING_ALGORITHM_ACTIVATED){
             acceleration = AlgorithmLibrary.getFlockingAlgorithm().loop(this);
-            System.out.println(getId() + ">> Acceleration >> " + acceleration.toString());
+            System.out.println("Flocking force (" + getId() + ") : " + acceleration.toStringRounded());
+            ServiceLogger.log("Flocking force (" + getId() + ") :\t " + acceleration.toStringRounded());
             velocity = Vector3.timesScalar(acceleration,(double) (System.currentTimeMillis() - input.longValue()) / 1000 );
+
         }
 
         if(BOID_ALGORITHM_ACTIVATED){
@@ -441,7 +447,7 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
                 velocity = AlgorithmLibrary.getFollowPathAlgorithm().loop(this);
 
                 velocity.timesScalar((double)(System.currentTimeMillis()-input.longValue())/1000);
-                System.out.println("Leader follows checkpoints  :::: " + getId() + " ::::: " + velocity.toString());
+                System.out.println("Follow path force (" + getId() + ") :\t " + velocity.toStringRounded());
 
             }else if(!HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED){
                 return null;
@@ -467,7 +473,7 @@ public class Quadrotor extends Unit implements Loopable<Long,Void> {
 
         System.out.println(getId() + ">> Velocity >> " + velocity.toString());
 
-        ServiceLogger.logLabel(this, getLogMessage());
+        ServiceLogger.logLabel(this, getLogMessage(velocity));
 
         if((getTargetPosition().distance(getPosition())<0.05)){
             if(!getTargetPosition().isVectorNull()){

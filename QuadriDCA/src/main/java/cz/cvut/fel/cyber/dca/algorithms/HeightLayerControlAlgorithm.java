@@ -11,11 +11,24 @@ public class HeightLayerControlAlgorithm implements Loopable<Quadrotor,Vector3> 
     private double speed = 0.7;
     private double param = 2;
 
+    public double getParam() {
+        return param;
+    }
+
+    public void setParam(double param) {
+        this.param = param;
+    }
+
     private HeightLayer rule(Quadrotor unit){
         if(unit.isLandingCmd()) return unit.getHeightProfile().getLayers().get(0);
+
         if(unit.isLeader()) return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()+1);
         //if(!unit.isBoundary())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
-        /*else*/ return unit.getHeightProfile().getDefaultLayer();
+        /*else*/
+
+        if(unit.getBoundaryVector().isZ())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
+        //return unit.getCurrentLayer();
+        return unit.getHeightProfile().getDefaultLayer();
     }
 
     @Override
@@ -34,9 +47,9 @@ public class HeightLayerControlAlgorithm implements Loopable<Quadrotor,Vector3> 
             difference = defaultLayer.getLayerOptimalHeight()-height;
         }
 
-        if(defaultLayer.inRange(height)){/*
+        if(defaultLayer.inRange(height)){
             if(Math.abs(difference)<0.05)return new Vector3();
-            else layerForce.setZ(0.7*speed*difference);*/
+            else layerForce.setZ(0.7*speed*difference);
         }else{
             layerForce.setZ(speed*difference);
         }

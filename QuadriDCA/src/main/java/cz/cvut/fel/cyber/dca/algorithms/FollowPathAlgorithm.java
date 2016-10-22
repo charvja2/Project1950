@@ -11,28 +11,33 @@ import java.util.List;
  */
 public class FollowPathAlgorithm implements Loopable<Quadrotor, Vector3> {
 
-    @Override
-    public Vector3 loop(Quadrotor input) {
-        List<DummyCheckpoint> checkpointList = new ArrayList<>();
-        List<Path> pathList = Swarm.getPathList();
-        if (Swarm.getPathList().stream().filter(path -> path.getIndex()==input.getId()).findAny().isPresent())
-            checkpointList = Swarm.getPathList().stream().filter(path -> path.getIndex()==input.getId())
-                                                                                    .findAny().get().getCheckpointList();
+    private double param = 0.4;
 
-        if(checkpointList.size()==0)return new Vector3();
-        if(checkpointList.size()==input.getLastCheckpoint())return new Vector3();
+    public double getParam() {
+        return param;
+    }
 
-        DummyCheckpoint checkpoint =  checkpointList.get(input.getLastCheckpoint());
+    public void setParam(double param) {
+        this.param = param;
+    }
 
-        if(checkpoint.getPosition().distance(input.getPosition())<(input.getPosition().getZ()+0.4)){
-            input.setLastCheckpoint(input.getLastCheckpoint()+1);
-            return new Vector3();
+    private Vector3 getFollowForce(Quadrotor unit){
+        Path3D path = Swarm.getPath3DList().get(unit.getId());
+        if(path.getPath().size()==0) return new Vector3();
+        if(path.getPath().size()==unit.getLastCheckpoint())return new Vector3();
+
+        Vector3 checkpointPosition = path.getPath().get(unit.getLastCheckpoint());
+        if(checkpointPosition.distance(unit.getPosition())<0.5){
+            unit.setLastCheckpoint(unit.getLastCheckpoint() + 1 );
         }
 
-        Vector3 position = Vector3.minus(checkpoint.getPosition().toVector2().toVector3(),input.getPosition().toVector2().toVector3());
-        //position.timesScalar();
-        //position.setZ(0);
+        Vector3 followForce = Vector3.minus(checkpointPosition, unit.getPosition());
+        followForce.timesScalar(param);
+        return followForce;
+    }
 
-        return position;
+    @Override
+    public Vector3 loop(Quadrotor input) {
+        return getFollowForce(input);
     }
 }

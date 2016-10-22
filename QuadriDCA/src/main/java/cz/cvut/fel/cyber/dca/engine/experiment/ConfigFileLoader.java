@@ -1,5 +1,9 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
+import cz.cvut.fel.cyber.dca.engine.core.Path3D;
+import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
+import cz.cvut.fel.cyber.dca.engine.util.Vector3;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -7,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
 
@@ -16,6 +21,8 @@ import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
 public class ConfigFileLoader {
 
     private static String CONFIG_DIR = "ExperimentConfig/";
+    private static String PATH_DIR = "Path/";
+
 
     public static void saveConfig(String configFilename){
         List<String> configList = new ArrayList<>();
@@ -52,9 +59,9 @@ public class ConfigFileLoader {
     public static void loadConfig(String configFilename) {
         try {   Files.lines(Paths.get(CONFIG_DIR + configFilename)).forEach(line -> {
                 if (line.contains("=")) {
-                    String[] param = line.split(" = ");
-                    String key = param[0];
-                    String value = param[1];
+                    String[] param = line.split("=");
+                    String key = param[0].trim();
+                    String value = param[1].trim();
 
                     if (key.equals("ROBOT_COMMUNICATION_RANGE")) {
                         ROBOT_COMMUNICATION_RANGE = Double.parseDouble(value);
@@ -73,7 +80,8 @@ public class ConfigFileLoader {
                     } else if (key.equals("SIMULATION_STEP_MILLIS")) {
                         SIMULATION_STEP_MILLIS = Integer.parseInt(value);
                     } else if (key.equals("FAILURE_RATE_PER_SEC")) {
-                        FAILURE_RATE_PER_SEC = Double.parseDouble(value.split("/")[0]) / Double.parseDouble(value.split("/")[1]);
+                        if(value.contains("/")) FAILURE_RATE_PER_SEC = Double.parseDouble(value.split("/")[0]) / Double.parseDouble(value.split("/")[1]);
+                        else FAILURE_RATE_PER_SEC = Double.parseDouble(value);
                     } else if (key.equals("BOID_ALGORITHM_ACTIVATED")) {
                         BOID_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
                     } else if (key.equals("FLOCKING_ALGORITHM_ACTIVATED")) {
@@ -113,5 +121,31 @@ public class ConfigFileLoader {
         }
     }
 
+    public static Path3D loadPath(String filename) {
+        List<Vector3> vecList = new ArrayList<>();
+        try {
+            Files.lines(Paths.get(PATH_DIR + filename)).forEach(line -> {
+                String[] position = line.split(" ");
+                vecList.add(new Vector3(Double.parseDouble(position[0]),Double.parseDouble(position[1]),Double.parseDouble(position[2])));
+            });
+        } catch (IOException e) {
+            ServiceLogger.log("Path file: "+ PATH_DIR + filename + " could not be opened.");
+            e.printStackTrace();
+        }
+        return new Path3D(Integer.parseInt(filename.split("\\.")[0]), vecList);
+    }
+
+    public static void savePath(Path3D path){
+        try {
+            Files.write(Paths.get(PATH_DIR + path.getIndex()+ ".txt"),
+                    path.getPath().stream().map(vec -> vec.getX() + " " + vec.getY() + " " + vec.getZ()).collect(Collectors.toList()),
+                    Charset.forName("UTF-8"),
+                    StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            ServiceLogger.log("Could not save path to file: " + PATH_DIR + path.getIndex()+ ".txt");
+            e.printStackTrace();
+        }
+
+    }
 
 }

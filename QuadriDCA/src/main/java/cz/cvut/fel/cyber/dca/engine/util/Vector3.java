@@ -7,6 +7,9 @@ package cz.cvut.fel.cyber.dca.engine.util;
 
 import coppelia.FloatW;
 import coppelia.FloatWA;
+import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
+
+import java.text.DecimalFormat;
 
 import static java.lang.Math.*;
 import static java.lang.Math.sqrt;
@@ -175,6 +178,11 @@ public class Vector3 {
     @Override
     public String toString() {
         return "["  + x + "\t" + y + "\t" + z + ']';
+    }
+
+    public String toStringRounded(){
+        DecimalFormat df = new DecimalFormat("####0.000");
+        return "["  + df.format(x) + "\t" + df.format(y) + "\t" + df.format(z) + ']';
     }
 
 }

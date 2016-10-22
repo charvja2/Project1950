@@ -18,6 +18,14 @@ public class DensityAlgorithm implements Loopable<Quadrotor, Vector3> {
 
     private double param = 0.5;
 
+    public double getParam() {
+        return param;
+    }
+
+    public void setParam(double param) {
+        this.param = param;
+    }
+
     private double calculateObservableArea(Quadrotor unit){
         if (!unit.isBoundary()){
             if(DIMENSION == 2) return MathUtils.ringSurface(ROBOT_COMMUNICATION_RANGE);

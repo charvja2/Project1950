@@ -17,10 +17,20 @@ public class BoundaryTension implements Loopable<Quadrotor, Vector3> {
 
     private double wParam = 0.4;
 
+    public void setwParam(double wParam) {
+        this.wParam = wParam;
+    }
+
+    public double getwParam() {
+        return wParam;
+    }
+
     private Vector3 w(Vector3 boundaryForce){
         boundaryForce.timesScalar(wParam);
         return boundaryForce;
     }
+
+
 
     @Override
     public Vector3 loop(Quadrotor input) {

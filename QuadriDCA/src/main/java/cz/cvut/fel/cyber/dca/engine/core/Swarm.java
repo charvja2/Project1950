@@ -28,10 +28,10 @@ public class Swarm {
 
     private static List<Quadrotor> members = new ArrayList<>();
 
-    private static List<Path> pathList = new ArrayList<>();
+    private static List<Path3D> path3DList = new ArrayList<>();
 
-    public static List<Path> getPathList() {
-        return pathList;
+    public static List<Path3D> getPath3DList() {
+        return path3DList;
     }
 
     public static List<Quadrotor> getMembers() {
@@ -192,13 +192,9 @@ public class Swarm {
         return graph;
     }
 
-    public static boolean withinCommunicationRange(Unit a, Unit b){
-        return a.getPosition().distance(b.getPosition()) < ROBOT_COMMUNICATION_RANGE;
-    }
-
     public static Void loop(Long input) {
         members.stream().forEach(unit -> unit.loop(input));
-        members.stream().forEach(unit -> unit.exportData());
+        members.stream().forEach(Quadrotor::exportData);
 
         return null;
     }

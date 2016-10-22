@@ -23,7 +23,22 @@ import java.util.List;
  */
 public class ControlGui extends Application {
 
-    private void setBackCol(Button btn, boolean state){
+    static Button connectButton;
+    static Button flockingBtn;
+    static Button boundaryDetBtn;
+    static Button boundaryTenBtn;
+    static Button leaderFollowBtn;
+    static Button thicknessBtn;
+    static Button densityBtn;
+    static Button heightControlBtn;
+    static Button followPathBtn;
+    static Button dimensionBtn;
+    static Button recordBtn;
+    static Button stopButton;
+
+
+
+    public static void setBackCol(Button btn, boolean state){
         if(state)btn.setBackground(new Background(new BackgroundFill(Color.DARKGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
         else btn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
     }
@@ -37,24 +52,25 @@ public class ControlGui extends Application {
         TextField inputField = new TextField("");
         inputField.setFocusTraversable(false);
 
-
         List<Label> labelList = new ArrayList<>();
         ServiceLogger.registerLabelList(labelList);
         Swarm.getMembers().stream().forEach(member -> labelList.add(member.getId(), new Label(Integer.toString(member.getId()))));
 
         Label simTimeLabel = new Label("");
-        Button connectButton = new Button("Connect");
-        Button flockingBtn = new Button("Flocking");
-        Button boundaryDetBtn = new Button("Boundary det");
-        Button boundaryTenBtn = new Button("Boundary ten");
-        Button leaderFollowBtn = new Button("Leader");
-        Button thicknessBtn = new Button("Thickness");
-        Button densityBtn = new Button("Density");
-        Button heightControlBtn = new Button("Height");
-        Button followPathBtn = new Button("Follow path");
-        Button dimensionBtn = new Button("Dimension 2D/3D");
-        Button recordBtn = new Button("Data log");
-        Button stopButton = new Button("Stop");
+        ServiceLogger.registerSimTimeLabel(simTimeLabel);
+
+        connectButton = new Button("Connect");
+        flockingBtn = new Button("Flocking");
+        boundaryDetBtn = new Button("Boundary det");
+        boundaryTenBtn = new Button("Boundary ten");
+        leaderFollowBtn = new Button("Leader");
+        thicknessBtn = new Button("Thickness");
+        densityBtn = new Button("Density");
+        heightControlBtn = new Button("Height");
+        followPathBtn = new Button("Follow path");
+        dimensionBtn = new Button("Dimension 2D/3D");
+        recordBtn = new Button("Data log");
+        stopButton = new Button("Stop");
 
         setBackCol(flockingBtn, Experiment.FLOCKING_ALGORITHM_ACTIVATED);
         setBackCol(boundaryDetBtn, Experiment.BOUNDARY_DETECTION_ALGORITHM_ACTIVATED);
@@ -134,7 +150,9 @@ public class ControlGui extends Application {
         VBox labelPane = new VBox();
         HBox buttonPane = new HBox();
         centerPane.getChildren().addAll(inputField);
+        labelPane.getChildren().add(simTimeLabel);
         labelPane.getChildren().addAll(labelList);
+
         buttonPane.getChildren().addAll(flockingBtn, boundaryDetBtn, boundaryTenBtn,
                 leaderFollowBtn, thicknessBtn, densityBtn, heightControlBtn, followPathBtn, dimensionBtn, recordBtn, connectButton, stopButton);
 
@@ -152,7 +170,7 @@ public class ControlGui extends Application {
         AnchorPane.setBottomAnchor(labelPane,25.0);
         AnchorPane.setLeftAnchor(textArea,0.0);
        // AnchorPane.setLeftAnchor(labelPane,505.0);
-        //AnchorPane.setRightAnchor(textArea,495.0);
+        AnchorPane.setRightAnchor(textArea,700.0);
         AnchorPane.setRightAnchor(labelPane,0.0);
         AnchorPane.setTopAnchor(textArea,35.0);
         AnchorPane.setTopAnchor(labelPane,35.0);
@@ -182,7 +200,7 @@ public class ControlGui extends Application {
         });
 
 
-        Scene scene = new Scene(root, 1000, 400);
+        Scene scene = new Scene(root, 1400, 400);
 
         primaryStage.setTitle("V-REP EXPERIMENT CONTROLLER!");
         primaryStage.setScene(scene);

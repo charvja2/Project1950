@@ -7,6 +7,7 @@ import cz.cvut.fel.cyber.dca.engine.util.StopWatch;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.security.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,9 +45,11 @@ public class ExperimentController implements Runnable{
         stopWatch.start();
         if(session.connect()){
             LOGGER.log(Level.INFO,"Connected to V-Rep");
+            ServiceLogger.log("Connected to V-Rep");
             session.getVrep().simxAddStatusbarMessage(session.getClientId(),"Connected from Java client!", session.getVrep().simx_opmode_oneshot);
         }else{
             LOGGER.log(Level.INFO,"Connection to V-Rep failed!");
+            ServiceLogger.log("Connection to V-Rep failed");
             return;
         }
 
@@ -54,12 +57,10 @@ public class ExperimentController implements Runnable{
         Swarm.initVrepMembers(session);
         Swarm.launchDownloadBuffer(session);
 
-        if(LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED){
-            for(Quadrotor leader :  Swarm.getLeaders()){
-                Path path = new Path(leader.getId(),CHECKPOINT_COUNT);
-                path.initVrep(session);
-                Swarm.getPathList().add(path);
-            }
+        for(Quadrotor leader :  Swarm.getLeaders()){
+            //Path3D path = new Path3D(leader.getId(),60,15);
+            Path3D path = ConfigFileLoader.loadPath(leader.getId() + ".txt");
+            Swarm.getPath3DList().add(path);
         }
 
         int iterationCounter = 0;
@@ -85,11 +86,12 @@ public class ExperimentController implements Runnable{
             }
             Swarm.uploadVrepMembers(session);
             getSimulationTime(session);
+            ServiceLogger.logSimTime();
         }
 
         session.getVrep()
                 .simxAddStatusbarMessage(session.getClientId(), "Disconnected from Java client!", session.getVrep().simx_opmode_oneshot);
-
+        ServiceLogger.log("Discennected from V-Rep.");
         session.disconnect();
     }
 
