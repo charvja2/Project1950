@@ -125,6 +125,24 @@ public class Vector3 {
     return x*pos.getX()+y*pos.getY()+z*pos.getZ();
     }
 
+    public static double dot(Vector3 a, Vector3 b){
+        return b.getX()*a.getX()+b.getY()*a.getY()+b.getZ()*a.getZ();
+    }
+
+    public Vector3 cross(Vector3 b){
+        double c1 = y*b.getZ() - z*b.getY();
+        double c2 = z*b.getX() - x*b.getZ();
+        double c3 = x*b.getY() - y*b.getX();
+        return new Vector3(c1,c2,c3);
+    }
+
+    public static Vector3 cross(Vector3 a, Vector3 b){
+        double c1 = a.getY()*b.getZ() - a.getZ()*b.getY();
+        double c2 = a.getZ()*b.getX() - a.getX()*b.getZ();
+        double c3 = a.getX()*b.getY() - a.getY()*b.getX();
+        return new Vector3(c1,c2,c3);
+    }
+
     public void unitVector(){
         if(norm3()!=0)timesScalar(1/norm3());
     }
@@ -173,6 +191,32 @@ public class Vector3 {
 
     public Vector2 toVector2(){
         return new Vector2(getX(),getY());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Vector3 vector3 = (Vector3) o;
+
+        if (Double.compare(vector3.x, x) != 0) return false;
+        if (Double.compare(vector3.y, y) != 0) return false;
+        return Double.compare(vector3.z, z) == 0;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(x);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(y);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(z);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 
     @Override

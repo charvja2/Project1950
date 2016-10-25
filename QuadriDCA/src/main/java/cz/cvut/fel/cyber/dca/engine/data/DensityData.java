@@ -1,5 +1,7 @@
 package cz.cvut.fel.cyber.dca.engine.data;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by Jan on 12. 12. 2015.
  */
@@ -37,6 +39,11 @@ public class DensityData {
 
     public double getOptimalDensity() {
         return optimalDensity;
+    }
+
+    public String toLogString(){
+        DecimalFormat df = new DecimalFormat("####0.000");
+        return "D= [org= " + df.format(originDensity) + " avg=" + df.format(averagedDensity) + " opt=" + df.format(optimalDensity)  +"]";
     }
 
     @Override

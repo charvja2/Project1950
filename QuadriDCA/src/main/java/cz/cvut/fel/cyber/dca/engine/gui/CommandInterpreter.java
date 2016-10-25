@@ -1,14 +1,17 @@
 package cz.cvut.fel.cyber.dca.engine.gui;
 
 import cz.cvut.fel.cyber.dca.algorithms.AlgorithmLibrary;
+import cz.cvut.fel.cyber.dca.engine.core.Path3D;
 import cz.cvut.fel.cyber.dca.engine.core.Swarm;
 import cz.cvut.fel.cyber.dca.engine.experiment.ConfigFileLoader;
 import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
+import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 
-import java.awt.*;
+
 import java.security.Provider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -37,6 +40,12 @@ public class CommandInterpreter {
                 Double originValue = AlgorithmLibrary.getFollowPathAlgorithm().getParam();
                 AlgorithmLibrary.getFollowPathAlgorithm().setParam(Double.parseDouble(arguments.split(" ")[1]));
                 ServiceLogger.log("Follow path algorithm wight set to: " + arguments.split(" ")[1]+ ". ( Original: " + originValue + " )" );
+            }else if(arguments.contains("gen")){ // path gen l x1 y1 z1 x2 y2 z2  - command generates line path for leader l
+                String args[] = arguments.split(" ");
+                List<Vector3> path = Path3D.getLinePath(100, new Vector3(Double.parseDouble(args[2]),Double.parseDouble(args[3]),Double.parseDouble(args[4])),
+                        new Vector3(Double.parseDouble(args[5]),Double.parseDouble(args[6]),Double.parseDouble(args[7])));
+                Swarm.getPath3DList().add(Integer.parseInt(args[1]), new Path3D(Integer.parseInt(args[1]), path));
+                return "Path generated for leader" + args[1] ;
             }
             return "Unknown param: " + arguments + ".";
         });
@@ -53,7 +62,7 @@ public class CommandInterpreter {
             return "";
 
         });
-        commandMapper.put("flock", (arguments) -> {
+        commandMapper.put("distance", (arguments) -> {
             Double originValue = Experiment.ROBOT_DESIRED_DISTANCE;
             Experiment.ROBOT_DESIRED_DISTANCE = Double.parseDouble(arguments.split(" ")[1]);
             Experiment.RATIO = Experiment.ROBOT_DESIRED_DISTANCE / Experiment.ROBOT_COMMUNICATION_RANGE;
@@ -164,7 +173,7 @@ public class CommandInterpreter {
             return "Unknown param: " + arguments + ".";
         });
 
-        commandMapper.put("leaderCount", (arguments) -> {
+        commandMapper.put("leadercount", (arguments) -> {
             Swarm.getMembers().stream().forEach(member -> {
                 if(member.getId()<Integer.valueOf(arguments))member.setLeader(true);
                 else member.setLeader(false);
@@ -225,7 +234,7 @@ public class CommandInterpreter {
         });
     }
 
-    public static String executeCommand(String command){
+    private static String executeSingleCommand(String command){
         String[] frags = command.split(" ");
         command = frags[0];
         String arguments = "";
@@ -236,6 +245,18 @@ public class CommandInterpreter {
         if(commandMapper.containsKey(command.toLowerCase())){
             return commandMapper.get(command.toLowerCase()).apply(arguments.toLowerCase());
         }else return "Unknown command: " + command;
+    }
+
+    public static String executeCommand(String command){
+        if(command.contains(";")){
+            String[] comms = command.split(";");
+            String ret = "";
+            for(String singleCom : comms){
+                ret+= executeSingleCommand(singleCom.trim());
+                ret+=System.getProperty("line.separator");
+            }
+            return ret;
+        }else return executeSingleCommand(command);
     }
 
 }

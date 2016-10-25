@@ -51,11 +51,11 @@ public class LogicalVector {
         this.z = z;
     }
 
-    public boolean or(){
+    public boolean and(){
         return x && y && z;
     }
 
-    public boolean and(){
+    public boolean or(){
         return x || y || z;
     }
 

@@ -1,6 +1,7 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
 import cz.cvut.fel.cyber.dca.engine.core.Path3D;
+import cz.cvut.fel.cyber.dca.engine.gui.ControlGui;
 import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 
@@ -32,10 +33,10 @@ public class ConfigFileLoader {
         configList.add("ROBOT_MAX_VELOCITY="+Double.toString(ROBOT_MAX_VELOCITY));
         configList.add("LEADER_MAX_VELOCITY="+Double.toString(LEADER_MAX_VELOCITY));
         configList.add("ROBOT_COUNT="+Integer.toString(ROBOT_COUNT));
+        configList.add("LEADER_COUNT="+Integer.toString(LEADER_COUNT));
         configList.add("SIMULATION_STEP_MILLIS="+Integer.toString(SIMULATION_STEP_MILLIS));
         configList.add("FAILURE_RATE_PER_SEC="+Double.toString(FAILURE_RATE_PER_SEC));
         configList.add("FLOCKING_ALGORITHM_ACTIVATED="+Boolean.toString(FLOCKING_ALGORITHM_ACTIVATED));
-        configList.add("BOID_ALGORITHM_ACTIVATED="+Boolean.toString(BOID_ALGORITHM_ACTIVATED));
         configList.add("BOUNDARY_DETECTION_ALGORITHM_ACTIVATED="+Boolean.toString(BOUNDARY_DETECTION_ALGORITHM_ACTIVATED));
         configList.add("BOUNDARY_TENSION_ALGORITHM_ACTIVATED="+Boolean.toString(BOUNDARY_TENSION_ALGORITHM_ACTIVATED));
         configList.add("LEADER_FOLLOW_ALGORITHM_ACTIVATED="+Boolean.toString(LEADER_FOLLOW_ALGORITHM_ACTIVATED));
@@ -45,7 +46,6 @@ public class ConfigFileLoader {
         configList.add("HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED="+Boolean.toString(HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED));
         configList.add("FLIGHT_RECORDING="+Boolean.toString(FLIGHT_RECORDING));
         configList.add("HEIGHT_LAYER_HEIGHT="+Double.toString(HEIGHT_LAYER_HEIGHT));
-        configList.add("CHECKPOINT_COUNT="+Integer.toString(CHECKPOINT_COUNT));
 
         try {
             Files.write(Paths.get(CONFIG_DIR + configFilename), configList, Charset.forName("UTF-8"), StandardOpenOption.CREATE);
@@ -82,32 +82,37 @@ public class ConfigFileLoader {
                     } else if (key.equals("FAILURE_RATE_PER_SEC")) {
                         if(value.contains("/")) FAILURE_RATE_PER_SEC = Double.parseDouble(value.split("/")[0]) / Double.parseDouble(value.split("/")[1]);
                         else FAILURE_RATE_PER_SEC = Double.parseDouble(value);
-                    } else if (key.equals("BOID_ALGORITHM_ACTIVATED")) {
-                        BOID_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
                     } else if (key.equals("FLOCKING_ALGORITHM_ACTIVATED")) {
                         FLOCKING_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.flockingBtn,Experiment.FLOCKING_ALGORITHM_ACTIVATED);
                     } else if (key.equals("BOUNDARY_DETECTION_ALGORITHM_ACTIVATED")) {
                         BOUNDARY_DETECTION_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.boundaryDetBtn,Experiment.BOUNDARY_DETECTION_ALGORITHM_ACTIVATED);
                     } else if (key.equals("BOUNDARY_TENSION_ALGORITHM_ACTIVATED")) {
                         BOUNDARY_TENSION_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.boundaryTenBtn,Experiment.BOUNDARY_TENSION_ALGORITHM_ACTIVATED);
                     } else if (key.equals("LEADER_FOLLOW_ALGORITHM_ACTIVATED")) {
                         LEADER_FOLLOW_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.leaderFollowBtn,Experiment.LEADER_FOLLOW_ALGORITHM_ACTIVATED);
                     } else if (key.equals("THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED")) {
                         THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.thicknessBtn,Experiment.THICKNESS_DETERMINATION_ALGORITHM_ACTIVATED);
                     } else if (key.equals("DENSITY_ALGORITHM_ACTIVATED")) {
                         DENSITY_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.densityBtn,Experiment.DENSITY_ALGORITHM_ACTIVATED);
                     } else if (key.equals("LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED")) {
                         LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED = Boolean.parseBoolean(value);
-                    } else if (key.equals("CHECKPOINT_COUNT")) {
-                        CHECKPOINT_COUNT = Integer.parseInt(value);
+                        ControlGui.setBackCol(ControlGui.followPathBtn,Experiment.LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED);
                     }else if (key.equals("DIMENSION")) {
                         DIMENSION = Integer.parseInt(value);
                     }else if (key.equals("HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED")) {
                         HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.heightControlBtn,Experiment.HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED);
                     }else if (key.equals("HEIGHT_LAYER_HEIGHT")) {
                         HEIGHT_LAYER_HEIGHT = Double.parseDouble(value);
                     }else if (key.equals("FLIGHT_RECORDING")) {
                         FLIGHT_RECORDING = Boolean.parseBoolean(value);
+                        ControlGui.setBackCol(ControlGui.recordBtn,Experiment.FLIGHT_RECORDING);
                     }else {
                         if (!key.contains("//")) System.out.println("Unknown parameter: " + line);
                     }
@@ -137,10 +142,13 @@ public class ConfigFileLoader {
 
     public static void savePath(Path3D path){
         try {
+            List<String> pathList = path.getPath().stream().map(vec ->
+                    String.valueOf(vec.getX()) + " " + String.valueOf(vec.getY()) + " " + String.valueOf(vec.getZ())).
+                    collect(Collectors.toList());
             Files.write(Paths.get(PATH_DIR + path.getIndex()+ ".txt"),
-                    path.getPath().stream().map(vec -> vec.getX() + " " + vec.getY() + " " + vec.getZ()).collect(Collectors.toList()),
+                    pathList,
                     Charset.forName("UTF-8"),
-                    StandardOpenOption.CREATE_NEW);
+                    StandardOpenOption.CREATE);
         } catch (IOException e) {
             ServiceLogger.log("Could not save path to file: " + PATH_DIR + path.getIndex()+ ".txt");
             e.printStackTrace();

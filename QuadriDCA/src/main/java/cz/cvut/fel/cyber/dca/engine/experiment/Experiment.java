@@ -1,6 +1,7 @@
 package cz.cvut.fel.cyber.dca.engine.experiment;
 
 import cz.cvut.fel.cyber.dca.engine.gui.ControlGui;
+import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +31,6 @@ public class Experiment {
     // Experiment control flags
     // BASE BEHAVIOR
     public static boolean FLOCKING_ALGORITHM_ACTIVATED = false;
-    public static boolean BOID_ALGORITHM_ACTIVATED = true;
     public static boolean BOUNDARY_DETECTION_ALGORITHM_ACTIVATED = true;
     public static boolean BOUNDARY_TENSION_ALGORITHM_ACTIVATED = true;
     // LEADER FORCES
@@ -40,7 +40,6 @@ public class Experiment {
     public static boolean DENSITY_ALGORITHM_ACTIVATED = true;
     //OTHER ALGORITHMS
     public static boolean LEADER_FOLLOWS_CHECKPOINTS_ACTIVATED = true;
-    public static int CHECKPOINT_COUNT = 2;
     public static boolean HEIGHT_SAFETY_CONTROL_ACTIVATED = true;
     public static boolean HEIGHT_LAYER_CONTROL_ALGORITHM_ACTIVATED = true;
 
@@ -48,7 +47,7 @@ public class Experiment {
     public static double ROBOT_MIN_SAFETY_HEIGHT = 2.0;
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
-    public static String EXPERIMENT_CONFIG_FILENAME = "tri.txt";
+    public static String EXPERIMENT_CONFIG_FILENAME = "ballShape3.txt";
 
     public static boolean FLIGHT_RECORDING = true;
 
@@ -62,9 +61,6 @@ public class Experiment {
 
         experimentController = new ExperimentController();
         (new Thread(experimentController)).start();
-
-        String[] arguments = {"ControlGui"};
-        ControlGui.main(arguments);
     }
 
 

@@ -61,12 +61,12 @@ public class BoundaryTension3D implements Loopable<Quadrotor, Vector3>{
         if(Swarm.getMembers().size()<3)return new Vector3();
 
         Vector3 boundaryForce = new Vector3();
-/*
+
         input.getReducedNeighbors().stream().forEach(neighbor -> {
                     boundaryForce.plus(input.getRelativeLocalization(neighbor).newUnitVector());
         });
-*/
 
+/*
         if(input.getBoundaryVector().isX()) {
             Vector3 boundaryForceX = getBoundaryForce(input, BoundaryCommon.findEmptySectorsX(input));
             //boundaryForceX.setX(0);
@@ -82,7 +82,7 @@ public class BoundaryTension3D implements Loopable<Quadrotor, Vector3>{
             //boundaryForceZ.setZ(0);
             boundaryForce.plus(boundaryForceZ);
         }
-
+*/
         return w(boundaryForce);
     }
 

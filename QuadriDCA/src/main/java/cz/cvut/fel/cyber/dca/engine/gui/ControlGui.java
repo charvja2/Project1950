@@ -23,19 +23,24 @@ import java.util.List;
  */
 public class ControlGui extends Application {
 
-    static Button connectButton;
-    static Button flockingBtn;
-    static Button boundaryDetBtn;
-    static Button boundaryTenBtn;
-    static Button leaderFollowBtn;
-    static Button thicknessBtn;
-    static Button densityBtn;
-    static Button heightControlBtn;
-    static Button followPathBtn;
-    static Button dimensionBtn;
-    static Button recordBtn;
-    static Button stopButton;
+    public static VBox centerPane;
+    public static VBox labelPane;
+    public static HBox buttonPane;
 
+    public static Label simTimeLabel;
+
+    public static Button connectButton;
+    public static Button flockingBtn;
+    public static Button boundaryDetBtn;
+    public static Button boundaryTenBtn;
+    public static Button leaderFollowBtn;
+    public static Button thicknessBtn;
+    public static Button densityBtn;
+    public static Button heightControlBtn;
+    public static Button followPathBtn;
+    public static Button dimensionBtn;
+    public static Button recordBtn;
+    public static Button stopButton;
 
 
     public static void setBackCol(Button btn, boolean state){
@@ -43,23 +48,36 @@ public class ControlGui extends Application {
         else btn.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
+    public static List<Label> getLogLabelList(){
+        List<Label> labelList = new ArrayList<>();
+        ServiceLogger.registerLabelList(labelList);
+        Swarm.getMembers().stream().forEach(member -> labelList.add(member.getId(), new Label(Integer.toString(member.getId()))));
+        return labelList;
+    }
+
+    public static void refreshLabels(){
+        Platform.runLater(() -> {
+            labelPane.getChildren().clear();
+            labelPane.getChildren().add(simTimeLabel);
+            labelPane.getChildren().addAll(getLogLabelList());
+        });
+    }
+
     @Override
     public void start(Stage primaryStage) {
         TextArea textArea = new TextArea("");
         textArea.setMinHeight(800.0);
+        textArea.setEditable(false);
 
         ServiceLogger.register(textArea);
         TextField inputField = new TextField("");
         inputField.setFocusTraversable(false);
 
-        List<Label> labelList = new ArrayList<>();
-        ServiceLogger.registerLabelList(labelList);
-        Swarm.getMembers().stream().forEach(member -> labelList.add(member.getId(), new Label(Integer.toString(member.getId()))));
+        List<Label> labelList = getLogLabelList();
 
-        Label simTimeLabel = new Label("");
+        simTimeLabel = new Label("");
         ServiceLogger.registerSimTimeLabel(simTimeLabel);
 
-        connectButton = new Button("Connect");
         flockingBtn = new Button("Flocking");
         boundaryDetBtn = new Button("Boundary det");
         boundaryTenBtn = new Button("Boundary ten");
@@ -70,6 +88,7 @@ public class ControlGui extends Application {
         followPathBtn = new Button("Follow path");
         dimensionBtn = new Button("Dimension 2D/3D");
         recordBtn = new Button("Data log");
+        connectButton = new Button("Connect");
         stopButton = new Button("Stop");
 
         setBackCol(flockingBtn, Experiment.FLOCKING_ALGORITHM_ACTIVATED);
@@ -126,9 +145,10 @@ public class ControlGui extends Application {
         });
 
         dimensionBtn.setOnAction(event1 -> {
+            int originalValue = Experiment.DIMENSION;
             if(Experiment.DIMENSION == 2) Experiment.DIMENSION = 3;
             else Experiment.DIMENSION = 2;
-            dimensionBtn.setText("Dimension " + Integer.toString(Experiment.DIMENSION)+"D");
+            dimensionBtn.setText("Dimension " + Integer.toString(originalValue)+"D");
             ServiceLogger.log("Dimension switched to: " + Integer.toString(Experiment.DIMENSION)+"D");
         });
 
@@ -138,7 +158,7 @@ public class ControlGui extends Application {
         });
 
         connectButton.setOnAction(event -> {
-
+            CommandInterpreter.executeCommand("run");
         });
         stopButton.setOnAction(event -> {
             ServiceLogger.log("Experiment stopped.");
@@ -146,9 +166,9 @@ public class ControlGui extends Application {
         });
 
 
-        VBox centerPane = new VBox();
-        VBox labelPane = new VBox();
-        HBox buttonPane = new HBox();
+        centerPane = new VBox();
+        labelPane = new VBox();
+        buttonPane = new HBox();
         centerPane.getChildren().addAll(inputField);
         labelPane.getChildren().add(simTimeLabel);
         labelPane.getChildren().addAll(labelList);
@@ -170,7 +190,7 @@ public class ControlGui extends Application {
         AnchorPane.setBottomAnchor(labelPane,25.0);
         AnchorPane.setLeftAnchor(textArea,0.0);
        // AnchorPane.setLeftAnchor(labelPane,505.0);
-        AnchorPane.setRightAnchor(textArea,700.0);
+        AnchorPane.setRightAnchor(textArea,1000.0);
         AnchorPane.setRightAnchor(labelPane,0.0);
         AnchorPane.setTopAnchor(textArea,35.0);
         AnchorPane.setTopAnchor(labelPane,35.0);

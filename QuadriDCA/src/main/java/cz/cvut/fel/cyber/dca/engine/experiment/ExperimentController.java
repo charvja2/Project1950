@@ -2,6 +2,7 @@ package cz.cvut.fel.cyber.dca.engine.experiment;
 
 import coppelia.remoteApi;
 import cz.cvut.fel.cyber.dca.engine.core.*;
+import cz.cvut.fel.cyber.dca.engine.gui.ControlGui;
 import cz.cvut.fel.cyber.dca.engine.gui.ServiceLogger;
 import cz.cvut.fel.cyber.dca.engine.util.StopWatch;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -42,20 +43,21 @@ public class ExperimentController implements Runnable{
     @Override
     public void run() {
         session = new VrepSession();
-        stopWatch.start();
         if(session.connect()){
-            LOGGER.log(Level.INFO,"Connected to V-Rep");
-            ServiceLogger.log("Connected to V-Rep");
+            LOGGER.log(Level.INFO,"Connected to V-Rep.");
+            ServiceLogger.log("Connected to V-Rep.");
             session.getVrep().simxAddStatusbarMessage(session.getClientId(),"Connected from Java client!", session.getVrep().simx_opmode_oneshot);
         }else{
             LOGGER.log(Level.INFO,"Connection to V-Rep failed!");
-            ServiceLogger.log("Connection to V-Rep failed");
+            ServiceLogger.log("Connection to V-Rep failed!");
             return;
         }
 
         Swarm.initMembers();
         Swarm.initVrepMembers(session);
         Swarm.launchDownloadBuffer(session);
+
+        ControlGui.refreshLabels();
 
         for(Quadrotor leader :  Swarm.getLeaders()){
             //Path3D path = new Path3D(leader.getId(),60,15);

@@ -2,13 +2,19 @@ package cz.cvut.fel.cyber.dca.algorithms;
 
 import cz.cvut.fel.cyber.dca.engine.core.Quadrotor;
 import cz.cvut.fel.cyber.dca.engine.experiment.Experiment;
+import cz.cvut.fel.cyber.dca.engine.util.Plane;
 import cz.cvut.fel.cyber.dca.engine.util.Vector3;
 import javafx.util.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 /**
  * Created by Jan on 13.10.2016.
@@ -16,7 +22,7 @@ import java.util.stream.Collectors;
 public class BoundaryCommon {
 
     public static List<Quadrotor> sortNeighborsX(Quadrotor unit){
-        return unit.getReducedNeighbors().stream().sorted((a, b) -> {
+        return unit.getNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
             if (Math.atan2(relLocMapper.get(a).getZ(), relLocMapper.get(a).getY())
                     > Math.atan2(relLocMapper.get(b).getZ(), relLocMapper.get(b).getY())) return 1;
@@ -25,7 +31,7 @@ public class BoundaryCommon {
     }
 
     public static List<Quadrotor> sortNeighborsY(Quadrotor unit){
-        return unit.getReducedNeighbors().stream().sorted((a, b) -> {
+        return unit.getNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
             if (Math.atan2(relLocMapper.get(a).getZ(), relLocMapper.get(a).getX())
                     > Math.atan2(relLocMapper.get(b).getZ(), relLocMapper.get(b).getX())) return 1;
@@ -34,7 +40,7 @@ public class BoundaryCommon {
     }
 
     public static List<Quadrotor> sortNeighborsZ(Quadrotor unit){
-        return unit.getReducedNeighbors().stream().sorted((a, b) -> {
+        return unit.getNeighbors().stream().sorted((a, b) -> {
             Map<Quadrotor, Vector3> relLocMapper = unit.getNeighborRelLocMapper();
             if (Math.atan2(relLocMapper.get(a).getY(), relLocMapper.get(a).getX())
                     > Math.atan2(relLocMapper.get(b).getY(), relLocMapper.get(b).getX())) return 1;

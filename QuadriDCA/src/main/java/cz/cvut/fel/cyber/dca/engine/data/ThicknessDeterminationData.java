@@ -1,5 +1,7 @@
 package cz.cvut.fel.cyber.dca.engine.data;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by Jan on 1. 12. 2015.
  */
@@ -53,6 +55,11 @@ public class ThicknessDeterminationData {
 
     public void setH(int h) {
         this.h = h;
+    }
+
+    public String toLogString(){
+        DecimalFormat df = new DecimalFormat("####0.000");
+        return "T= [t = " + df.format(t)  + " h =" + df.format(h) + "b = " + df.format(b) + "]";
     }
 
     @Override

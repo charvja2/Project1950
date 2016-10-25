@@ -88,20 +88,20 @@ public class BlackBoxDataCollector{
                 e.printStackTrace();
             }
             try {
-                Files.write(outputPositionFile, positionRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE_NEW);
+                Files.write(outputPositionFile, positionRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE);
             } catch (IOException e) {
                 System.out.println("Could not write record.");
                 e.printStackTrace();
             }
 
             try {
-                Files.write(outputBoundaryFile, boundaryRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE_NEW);
+                Files.write(outputBoundaryFile, boundaryRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE);
             } catch (IOException e) {
                 System.out.println("Could not write record.");
                 e.printStackTrace();
             }
             try {
-                Files.write(outputConnectionFile, connectionRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE_NEW);
+                Files.write(outputConnectionFile, connectionRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE);
             } catch (IOException e) {
                 System.out.println("Could not write record.");
                 e.printStackTrace();
