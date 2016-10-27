@@ -47,18 +47,18 @@ public class Experiment {
     public static double ROBOT_MIN_SAFETY_HEIGHT = 2.0;
     public static double ROBOT_MAX_SAFETY_HEIGHT = 80.0;
 
-    public static String EXPERIMENT_CONFIG_FILENAME = "ballShape3.txt";
+    public static String EXPERIMENT_CONFIG_FILENAME = "cube.txt";
 
     public static boolean FLIGHT_RECORDING = true;
 
     public static boolean AUTO_FAILURE = false;
+    public static int LAST_FAILURE_MILLIS = 0;
 
     public static int simulationTimeMillis = 0;
     public static ExperimentController experimentController;
 
     public static void main(String args[]) {
-        ConfigFileLoader.loadConfig(EXPERIMENT_CONFIG_FILENAME);
-
+        //ConfigFileLoader.loadConfig(EXPERIMENT_CONFIG_FILENAME);
         experimentController = new ExperimentController();
         (new Thread(experimentController)).start();
     }

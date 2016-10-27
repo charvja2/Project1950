@@ -13,6 +13,11 @@ public class Line {
         this.b = b;
     }
 
+    public Line(Vector3 b) {
+        this.a = new Vector3();
+        this.b = b;
+    }
+
     public Vector3 getA() {
         return a;
     }

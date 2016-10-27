@@ -26,7 +26,7 @@ public class HeightLayerControlAlgorithm implements Loopable<Quadrotor,Vector3> 
         //if(!unit.isBoundary())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
         /*else*/
 
-        if(unit.getBoundaryVector().isZ())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
+        //if(unit.getBoundaryVector().isZ())return unit.getHeightProfile().getLayers().get(unit.getHeightProfile().getDefaultLayerIndex()-1);
         //return unit.getCurrentLayer();
         return unit.getHeightProfile().getDefaultLayer();
     }

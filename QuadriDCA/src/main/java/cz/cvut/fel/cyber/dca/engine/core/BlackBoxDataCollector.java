@@ -17,10 +17,12 @@ public class BlackBoxDataCollector{
     private static String POSITION_FILENAME = "positionRecord";
     private static String BOUNDARY_FILENAME = "boundaryRecord";
     private static String CONNECTION_FILENAME = "connectionRecord";
+    private static String FORCE_FILENAME = "forceRecord";
     private static java.nio.file.Path outputPositionFile = Paths.get(DIR_NAME + POSITION_FILENAME + ".txt");
     private static java.nio.file.Path outputBoundaryFile = Paths.get(DIR_NAME + BOUNDARY_FILENAME + ".txt");
     private static java.nio.file.Path outputExperimentFile = Paths.get(DIR_NAME + EXPERIMENT_FILENAME + ".txt");
     private static java.nio.file.Path outputConnectionFile = Paths.get(DIR_NAME + CONNECTION_FILENAME + ".txt");
+    private static java.nio.file.Path outputForceFile = Paths.get(DIR_NAME + FORCE_FILENAME + ".txt");
 
     private static int iteration = 0;
     private static int skipIterations = 10;
@@ -28,6 +30,7 @@ public class BlackBoxDataCollector{
     private static List<String> positionRecords = new ArrayList<>(Swarm.getMembers().size());
     private static List<String> boundaryRecords = new ArrayList<>(Swarm.getMembers().size());
     private static List<String> connectionRecords = new ArrayList<>(Swarm.getMembers().size());
+    private static List<String> forceRecords = new ArrayList<>(Swarm.getMembers().size());
 
 
     public static void logUnit(Quadrotor quadracopter){
@@ -56,6 +59,7 @@ public class BlackBoxDataCollector{
         }
 
         connectionRecords.add(quadracopter.getId(), conns + System.lineSeparator() + reducedConns);
+        forceRecords.add(quadracopter.getId(),quadracopter.exportForces());
     }
 
     public static void logAll(){
@@ -106,6 +110,12 @@ public class BlackBoxDataCollector{
                 System.out.println("Could not write record.");
                 e.printStackTrace();
             }
+            try {
+                Files.write(outputForceFile, forceRecords, Charset.forName("UTF-8"),StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                System.out.println("Could not write record.");
+                e.printStackTrace();
+            }
 
         }
 
@@ -126,6 +136,12 @@ public class BlackBoxDataCollector{
 
             try {
                 Files.write(outputConnectionFile, connectionRecords, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                System.out.println("Could not write record.");
+                e.printStackTrace();
+            }
+            try {
+                Files.write(outputForceFile, forceRecords, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
             } catch (IOException e) {
                 System.out.println("Could not write record.");
                 e.printStackTrace();

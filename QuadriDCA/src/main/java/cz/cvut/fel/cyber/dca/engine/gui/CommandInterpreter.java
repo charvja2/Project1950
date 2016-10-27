@@ -197,8 +197,13 @@ public class CommandInterpreter {
             return "Config file " + realArg + " loaded.";
         });
         commandMapper.put("config", (arguments) -> {
-            Experiment.EXPERIMENT_CONFIG_FILENAME = arguments;
-            return "Experiment config filename changed: " + arguments;
+            if(arguments.contains("print")){
+                ConfigFileLoader.getConfigFileLines(Experiment.EXPERIMENT_CONFIG_FILENAME).stream().forEach(ServiceLogger::log);
+                return "";
+            }else{
+                Experiment.EXPERIMENT_CONFIG_FILENAME = arguments;
+                return "Experiment config filename changed: " + arguments;
+            }
         });
         commandMapper.put("help", (arguments) -> {
             commandMapper.entrySet().stream().forEach(set -> ServiceLogger.log(set.getKey()));
@@ -208,8 +213,12 @@ public class CommandInterpreter {
             if(arguments.contains("auto")){
                 String[] args = arguments.split(" ");
                 Experiment.AUTO_FAILURE = Boolean.parseBoolean(args[1]);
+                if(Experiment.AUTO_FAILURE){
+                    Experiment.LAST_FAILURE_MILLIS = Experiment.CURRENT_SIMULATION_MILLIS;
+                }
                 ServiceLogger.log("Auto failure set to: " + Experiment.AUTO_FAILURE+ " (rate: "
                                                                  + Experiment.FAILURE_RATE_PER_SEC + "/sec.");
+                return "";
             }else Swarm.getMembers().get(Integer.valueOf(arguments)).setFailure(true);
             return "Quadrotor " + arguments + " failed.";
         });

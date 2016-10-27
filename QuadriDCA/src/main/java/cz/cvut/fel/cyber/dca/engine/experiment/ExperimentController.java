@@ -9,8 +9,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.security.Provider;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.simulationTimeMillis;
@@ -89,6 +92,21 @@ public class ExperimentController implements Runnable{
             Swarm.uploadVrepMembers(session);
             getSimulationTime(session);
             ServiceLogger.logSimTime();
+
+            if(AUTO_FAILURE){
+               int N = (int)Math.floor(FAILURE_RATE_PER_SEC * (((CURRENT_SIMULATION_MILLIS - LAST_FAILURE_MILLIS)/1000)));
+                if(N>=1){
+                    for(int i = 0; i < N; i++ ) {
+                        List<Quadrotor> nonFailure = Swarm.getMembers().stream().filter(unit -> !unit.isFailure()).collect(Collectors.toList());
+                        if(nonFailure.size()==0)break;
+                        Random r = new Random();
+                        int rd = r.nextInt(nonFailure.size());
+                        nonFailure.get(rd).setFailure(true);
+                        LAST_FAILURE_MILLIS = CURRENT_SIMULATION_MILLIS;
+                    }
+                }
+            }
+
         }
 
         session.getVrep()

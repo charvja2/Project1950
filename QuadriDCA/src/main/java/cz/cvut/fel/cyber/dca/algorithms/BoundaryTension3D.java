@@ -9,8 +9,10 @@ import javafx.util.Pair;
 
 import java.util.Map;
 
+import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.*;
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.DIMENSION;
 import static cz.cvut.fel.cyber.dca.engine.experiment.Experiment.ROBOT_DESIRED_DISTANCE;
+import static java.lang.Math.*;
 
 /**
  * Created by Jan on 15.10.2016.
@@ -55,6 +57,28 @@ public class BoundaryTension3D implements Loopable<Quadrotor, Vector3>{
         return boundaryForce;
     }
 
+    private double weigthFunction(double distance){
+        double amplitude = 1;
+        if(distance == ROBOT_DESIRED_DISTANCE){
+            return 0;
+        }else if(distance > ROBOT_DESIRED_DISTANCE){
+            double y =  -pow(distance - ROBOT_DESIRED_DISTANCE,2);
+            return y*(amplitude/(abs(-pow(ROBOT_DESIRED_DISTANCE,2))));
+        }else if(distance < ROBOT_DESIRED_DISTANCE){
+            double y =  pow(distance - ROBOT_DESIRED_DISTANCE, 2);
+            return y*(amplitude/(abs(pow(ROBOT_COMMUNICATION_RANGE - ROBOT_DESIRED_DISTANCE,2))));
+        }
+        return 0;
+    }
+
+    private Vector3 getNeighborTensionForce(Quadrotor input, Quadrotor neighbor){
+        Vector3 force = input.getRelativeLocalization(neighbor);
+
+        force.newUnitVector();
+        force.timesScalar(weigthFunction(input.getDistance(neighbor)));
+
+        return force;
+    }
 
     @Override
     public Vector3 loop(Quadrotor input) {
@@ -62,9 +86,8 @@ public class BoundaryTension3D implements Loopable<Quadrotor, Vector3>{
 
         Vector3 boundaryForce = new Vector3();
 
-        input.getReducedNeighbors().stream().forEach(neighbor -> {
-                    boundaryForce.plus(input.getRelativeLocalization(neighbor).newUnitVector());
-        });
+        input.getReducedNeighbors().stream().filter(Quadrotor::isBoundary).forEach(neighbor ->
+                                                    boundaryForce.plus(input.getRelativeLocalization(neighbor).newUnitVector()));
 
 /*
         if(input.getBoundaryVector().isX()) {

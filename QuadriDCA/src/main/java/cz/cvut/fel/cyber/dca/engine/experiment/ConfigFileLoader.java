@@ -56,6 +56,17 @@ public class ConfigFileLoader {
 
     }
 
+    public static List<String> getConfigFileLines(String configFilename){
+        List<String> lines = new ArrayList<>();
+        try {   lines = Files.lines(Paths.get(CONFIG_DIR + configFilename)).filter(line -> line.contains("=")).collect(Collectors.toList());
+            }catch (IOException e) {
+            System.out.println("Failed to load config file!\n");
+            e.printStackTrace();
+        }
+        return lines;
+    }
+
+
     public static void loadConfig(String configFilename) {
         try {   Files.lines(Paths.get(CONFIG_DIR + configFilename)).forEach(line -> {
                 if (line.contains("=")) {

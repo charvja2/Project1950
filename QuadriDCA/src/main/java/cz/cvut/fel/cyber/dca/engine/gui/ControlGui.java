@@ -70,7 +70,7 @@ public class ControlGui extends Application {
         textArea.setEditable(false);
 
         ServiceLogger.register(textArea);
-        TextField inputField = new TextField("");
+        TextField inputField = new TextField("load; run");
         inputField.setFocusTraversable(false);
 
         List<Label> labelList = getLogLabelList();
